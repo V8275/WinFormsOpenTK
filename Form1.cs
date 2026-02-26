@@ -118,12 +118,13 @@ namespace WinFormsOpenTK
             {
                 var model = _sceneInitializer.CreateModel(_selectedModelPath, _selectedTexturePath);
 
-                Random rand = new Random();
-                Vector3 position = new Vector3(
-                    rand.Next(-4, 5),
-                    0f,
-                    rand.Next(-4, 5)
-                );
+                Vector3 position = new Vector3(float.Parse(xCoord.Text),
+                        float.Parse(yCoord.Text),
+                        float.Parse(zCoord.Text));
+
+                Vector3 scale = new Vector3(float.Parse(xScale.Text),
+                        float.Parse(yScale.Text),
+                        float.Parse(zScale.Text));
 
                 SceneObject newObj;
                 string objectTypeName;
@@ -145,10 +146,7 @@ namespace WinFormsOpenTK
                 }
                 else
                 {
-                    Vector3 pos = new Vector3(float.Parse(xCoord.Text),
-                        float.Parse(yCoord.Text),
-                        float.Parse(zCoord.Text));
-                    newObj = new SceneObject(model, pos, Vector3.Zero, new Vector3(1f, 1f, 1f));
+                    newObj = new SceneObject(model, position, Vector3.Zero, scale);
                     objectTypeName = "Static";
                 }
 
@@ -293,8 +291,8 @@ namespace WinFormsOpenTK
 
             if (!File.Exists(vertShaderPath) || !File.Exists(fragShaderPath))
             {
-                vertShaderPath = "D:\\Development\\OpenTKProject\\Shaders\\Vert\\shader.vert";//"D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shader.vert";
-                fragShaderPath = "D:\\Development\\OpenTKProject\\Shaders\\Frag\\shader.frag";//"D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Frag\\shader.frag";
+                vertShaderPath = "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shader.vert";//"D:\\Development\\OpenTKProject\\Shaders\\Vert\\shader.vert";//
+                fragShaderPath = "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Frag\\shader.frag";//"D:\\Development\\OpenTKProject\\Shaders\\Frag\\shader.frag";//
             }
 
             var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath);

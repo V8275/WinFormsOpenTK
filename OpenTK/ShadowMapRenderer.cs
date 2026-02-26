@@ -25,8 +25,8 @@ namespace OpenTKProject
 
             // Инициализируем шейдер только после создания OpenGL контекста
             _shadowShader = new Shader(
-                "D:\\Development\\OpenTKProject\\Shaders\\Vert\\shadow.vert",//"D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shadow.vert",
-                "D:\\Development\\OpenTKProject\\Shaders\\Frag\\shadow.frag"//"D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Frag\\shadow.frag"
+                "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shadow.vert",//"D:\\Development\\OpenTKProject\\Shaders\\Vert\\shadow.vert",//
+                "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Frag\\shadow.frag"//"D:\\Development\\OpenTKProject\\Shaders\\Frag\\shadow.frag"//
                 );
 
             _isInitialized = true;
