@@ -1,10 +1,10 @@
-﻿using System.Drawing;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using Keys = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
+using Vector3 = OpenTK.Mathematics.Vector3;
 
 namespace OpenTKProject
 {
@@ -14,6 +14,7 @@ namespace OpenTKProject
         private readonly CameraController _cameraController;
         private readonly Renderer _renderer;
         private readonly SceneInitializer _sceneInitializer;
+        private PhysicsWorld _physicsWorld; // Добавлено
 
         private List<SceneObject> _sceneObjects;
         private float _lastX, _lastY;
@@ -22,12 +23,13 @@ namespace OpenTKProject
         public OpenWindow(int width, int height, string title) :
             base(GameWindowSettings.Default, new NativeWindowSettings()
             {
-                Size = (width, height),
+                ClientSize = (width, height),
                 Title = title
             })
         {
             _light = new Light(new Vector3(-5f, 3.0f, 3.0f), Color.AntiqueWhite);
             _cameraController = new CameraController(1.5f, new Vector3(0.0f, 0.0f, 3.0f));
+            _physicsWorld = new PhysicsWorld(); // Добавлено
 
             var modelFactory = new ModelFactory(
                 "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shader.vert",
@@ -51,6 +53,9 @@ namespace OpenTKProject
             GL.ClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 
             _sceneObjects = _sceneInitializer.CreateScene(_light);
+
+            // Добавлено: инициализация физического мира
+            _physicsWorld.Initialize();
         }
 
         protected override void OnRenderFrame(FrameEventArgs e)
@@ -59,6 +64,9 @@ namespace OpenTKProject
 
             KeyboardState input = KeyboardState;
             _cameraController.Move(input, (float)e.Time);
+
+            // Добавлено: обновление физики
+            _physicsWorld.Update((float)e.Time);
 
             _renderer.Render(_sceneObjects, Size);
 
@@ -105,13 +113,13 @@ namespace OpenTKProject
 
         protected override void OnUnload()
         {
+            // Добавлено: очистка физического мира
+            _physicsWorld?.Dispose();
+
             foreach (var obj in _sceneObjects)
             {
                 obj.Model.Shader.Dispose();
             }
-
-            // Dispose renderers if they have cleanup methods
-            // _renderer.Dispose();
 
             base.OnUnload();
         }

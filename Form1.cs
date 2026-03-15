@@ -32,7 +32,7 @@ namespace WinFormsOpenTK
 
         private string _selectedModelPath = "";
         private string _selectedTexturePath = "";
-
+        private string _selectedModelFormat;
         private const int VK_W = 0x57;
         private const int VK_A = 0x41;
         private const int VK_S = 0x53;
@@ -116,7 +116,7 @@ namespace WinFormsOpenTK
         {
             try
             {
-                var model = _sceneInitializer.CreateModel(_selectedModelPath, _selectedTexturePath);
+                var model = _sceneInitializer.CreateModel(_selectedModelPath, _selectedTexturePath, GetFormatFromString(_selectedModelFormat));
 
                 Vector3 position = new Vector3(float.Parse(xCoord.Text),
                         float.Parse(yCoord.Text),
@@ -184,8 +184,22 @@ namespace WinFormsOpenTK
                     {
                         _selectedModelPath = data[i].ModelPath;
                         _selectedTexturePath = data[i].TexturePath;
+                        _selectedModelFormat = data[i].ModelFormat;
                     }
                 }
+            }
+        }
+
+        private ModelFormat GetFormatFromString(string formatType)
+        {
+            switch (formatType)
+            {
+                case "obj":
+                    return ModelFormat.Obj;
+                case "gltf":
+                    return ModelFormat.Gltf;
+                default:
+                    return ModelFormat.Obj;
             }
         }
 

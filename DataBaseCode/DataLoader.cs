@@ -40,14 +40,16 @@ namespace WinFormsOpenTK
                 while (reader.Read())
                 {
                     DbModel dbModel = new DbModel();
-                    (string?, string?, string?) dataForModel =
+                    (string?, string?, string?, string?) dataForModel =
                     (reader["name"].ToString(),
                         reader["model"].ToString(),
-                        reader["texture"].ToString());
+                        reader["texture"].ToString(),
+                        reader["format"].ToString());
 
                     if (String.IsNullOrEmpty(dataForModel.Item1) ||
                         String.IsNullOrEmpty(dataForModel.Item2) ||
-                        String.IsNullOrEmpty(dataForModel.Item3))
+                        String.IsNullOrEmpty(dataForModel.Item3) ||
+                        String.IsNullOrEmpty(dataForModel.Item4))
                         throw new Exception("Not Full Data");
                     else
                     {

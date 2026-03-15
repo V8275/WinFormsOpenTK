@@ -18,17 +18,17 @@
             shader = shad;
         }
 
-        public Model(Model m)
+        public Model(Model m, ModelFormat modelFormat = ModelFormat.Obj)
         {
-            SetVModel(m.vModel.PathToModel);
+            SetVModel(m.vModel.PathToModel, modelFormat);
             if(m.Texture != null)
                 SetTexture(m.Texture.PathToTexture);
             SetShader(m.shader.PathToVecShader, m.shader.PathToFragShader);
         }
 
-        public void SetVModel(string path)
+        public void SetVModel(string path, ModelFormat modelFormat)
         {
-            vModel = new VisualModel(path);
+            vModel = new VisualModel(path, modelFormat);
         }
         public void SetTexture(string path)
         {

@@ -105,8 +105,8 @@ namespace OpenTKProject
             int normalOffset = 5 * sizeof(float);
             int strideSize = stride * sizeof(float);
 
-            GL.BufferData(BufferTarget.ArrayBuffer, model.VModel.Verticies.Count() * sizeof(float),
-                          model.VModel.Verticies.ToArray(), BufferUsageHint.StaticDraw);
+            GL.BufferData(BufferTarget.ArrayBuffer, model.VModel.Vertices.Count() * sizeof(float),
+                          model.VModel.Vertices.ToArray(), BufferUsageHint.StaticDraw);
 
             GL.BufferData(BufferTarget.ElementArrayBuffer, model.VModel.Indices.Count() * sizeof(uint),
                           model.VModel.Indices.ToArray(), BufferUsageHint.StaticDraw);

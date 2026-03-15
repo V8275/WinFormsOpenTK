@@ -1,28 +1,44 @@
 ﻿using JeremyAnsel.Media.WavefrontObj;
+using SharpGLTF.Schema2;
+using System.Numerics;
 
 namespace OpenTKProject
 {
+    public enum ModelFormat
+    {
+        Obj,
+        Gltf
+    }
+
     public class VisualModel
     {
         private string path;
+        private ModelFormat format;
         public string PathToModel { get { return path; } }
+        public ModelFormat Format { get { return format; } }
 
-        private ObjFile model;
         private List<float> vertices = new List<float>();
         private List<uint> indices = new List<uint>();
 
-        public VisualModel(string modelPath)
+        public VisualModel(string modelPath, ModelFormat modelFormat = ModelFormat.Obj)
         {
             path = modelPath;
-            model = ObjFile.FromFile(modelPath);
+            format = modelFormat;
 
-            vertices = GetVertices();
-            indices = GetIndices();
+            switch (format)
+            {
+                case ModelFormat.Obj:
+                    LoadObjModel();
+                    break;
+                case ModelFormat.Gltf:
+                    LoadGltfModel();
+                    break;
+            }
         }
 
-        private List<float> GetVertices()
+        private void LoadObjModel()
         {
-            var vertices = new List<float>();
+            var model = ObjFile.FromFile(path);
 
             foreach (var face in model.Faces)
             {
@@ -61,14 +77,7 @@ namespace OpenTKProject
                 }
             }
 
-            return vertices;
-        }
-
-        private List<uint> GetIndices()
-        {
-            var indices = new List<uint>();
             uint index = 0;
-
             foreach (ObjFace face in model.Faces)
             {
                 for (int i = 0; i < face.Vertices.Count; i++)
@@ -76,12 +85,85 @@ namespace OpenTKProject
                     indices.Add(index++);
                 }
             }
-
-            return indices;
         }
 
-        public List<float> Verticies { get { return vertices; } }
-        public List<uint> Indices { get { return indices; } }
+        private void LoadGltfModel()
+        {
+            var model = ModelRoot.Load(path);
 
+            uint vertexOffset = 0;
+
+            foreach (var node in model.DefaultScene.VisualChildren)
+            {
+                if (node.Mesh == null) continue;
+
+                var mesh = node.Mesh;
+                var transform = node.WorldMatrix;
+
+                foreach (var primitive in mesh.Primitives)
+                {
+                    var positionAccessor = primitive.GetVertexAccessor("POSITION");
+                    var normalAccessor = primitive.GetVertexAccessor("NORMAL");
+                    var texCoordAccessor = primitive.GetVertexAccessor("TEXCOORD_0");
+
+                    if (positionAccessor == null) continue;
+
+                    var positions = positionAccessor.AsVector3Array();
+
+                    var normals = normalAccessor?.AsVector3Array();
+
+                    var texCoords = texCoordAccessor?.AsVector2Array();
+
+                    for (int i = 0; i < positions.Count; i++)
+                    {
+                        var worldPos = Vector3.Transform(positions[i], transform);
+                        vertices.Add(worldPos.X);
+                        vertices.Add(worldPos.Y);
+                        vertices.Add(worldPos.Z);
+
+                        if (texCoords != null && i < texCoords.Count)
+                        {
+                            vertices.Add(texCoords[i].X);
+                            vertices.Add(texCoords[i].Y);
+                        }
+                        else
+                        {
+                            vertices.Add(0f);
+                            vertices.Add(0f);
+                        }
+
+                        if (normals != null && i < normals.Count)
+                        {
+                            var worldNormal = Vector3.TransformNormal(normals[i], transform);
+                            worldNormal = Vector3.Normalize(worldNormal);
+                            vertices.Add(worldNormal.X);
+                            vertices.Add(worldNormal.Y);
+                            vertices.Add(worldNormal.Z);
+                        }
+                        else
+                        {
+                            vertices.Add(0f);
+                            vertices.Add(1f);
+                            vertices.Add(0f);
+                        }
+                    }
+
+                    var indicesAccessor = primitive.GetIndexAccessor();
+                    if (indicesAccessor != null)
+                    {
+                        var indicesArray = indicesAccessor.AsIndicesArray();
+                        foreach (var idx in indicesArray)
+                        {
+                            indices.Add(vertexOffset + (uint)idx);
+                        }
+                    }
+
+                    vertexOffset += (uint)positions.Count;
+                }
+            }
+        }
+
+        public List<float> Vertices { get { return vertices; } }
+        public List<uint> Indices { get { return indices; } }
     }
 }

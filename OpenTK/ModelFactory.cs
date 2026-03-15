@@ -11,11 +11,11 @@ namespace OpenTKProject
             _defaultFragShader = defaultFragShader;
         }
 
-        public Model CreateModel(string modelPath, string texturePath = "", 
+        public Model CreateModel(string modelPath, string texturePath = "", ModelFormat modelFormat = ModelFormat.Obj, 
                                  string vertShader = "", string fragShader = "")
         {
             Model model = new Model();
-            model.SetVModel(modelPath);
+            model.SetVModel(modelPath, modelFormat);
             
             if (!string.IsNullOrEmpty(texturePath))
                 model.SetTexture(texturePath);
