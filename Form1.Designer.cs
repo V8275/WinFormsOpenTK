@@ -30,6 +30,12 @@
         {
             _glControl = new OpenTK.GLControl.GLControl();
             panel1 = new Panel();
+            panel4 = new Panel();
+            label9 = new Label();
+            massText = new TextBox();
+            checkBox3 = new CheckBox();
+            checkBox2 = new CheckBox();
+            checkBox1 = new CheckBox();
             panel3 = new Panel();
             label5 = new Label();
             xScale = new TextBox();
@@ -53,7 +59,9 @@
             comboBox1 = new ComboBox();
             DeleteModelsBtn = new Button();
             listBox1 = new ListBox();
+            checkBox4 = new CheckBox();
             panel1.SuspendLayout();
+            panel4.SuspendLayout();
             panel3.SuspendLayout();
             panel2.SuspendLayout();
             SuspendLayout();
@@ -75,6 +83,7 @@
             // panel1
             // 
             panel1.BackColor = SystemColors.ControlDark;
+            panel1.Controls.Add(panel4);
             panel1.Controls.Add(panel3);
             panel1.Controls.Add(panel2);
             panel1.Controls.Add(LoadButton);
@@ -89,6 +98,74 @@
             panel1.Name = "panel1";
             panel1.Size = new Size(362, 780);
             panel1.TabIndex = 1;
+            // 
+            // panel4
+            // 
+            panel4.BackColor = SystemColors.ControlDarkDark;
+            panel4.Controls.Add(checkBox4);
+            panel4.Controls.Add(label9);
+            panel4.Controls.Add(massText);
+            panel4.Controls.Add(checkBox3);
+            panel4.Controls.Add(checkBox2);
+            panel4.Controls.Add(checkBox1);
+            panel4.Location = new Point(13, 270);
+            panel4.Name = "panel4";
+            panel4.Size = new Size(335, 135);
+            panel4.TabIndex = 16;
+            // 
+            // label9
+            // 
+            label9.AutoSize = true;
+            label9.Font = new Font("Segoe UI", 10F);
+            label9.ForeColor = SystemColors.ButtonFace;
+            label9.Location = new Point(10, 87);
+            label9.Name = "label9";
+            label9.Size = new Size(41, 19);
+            label9.TabIndex = 15;
+            label9.Text = "Mass";
+            // 
+            // massText
+            // 
+            massText.ImeMode = ImeMode.NoControl;
+            massText.Location = new Point(55, 87);
+            massText.Margin = new Padding(3, 2, 3, 2);
+            massText.Name = "massText";
+            massText.Size = new Size(92, 23);
+            massText.TabIndex = 15;
+            massText.Text = "10";
+            massText.KeyPress += Coord_KeyPress;
+            // 
+            // checkBox3
+            // 
+            checkBox3.AutoSize = true;
+            checkBox3.Location = new Point(10, 59);
+            checkBox3.Name = "checkBox3";
+            checkBox3.Size = new Size(90, 19);
+            checkBox3.TabIndex = 2;
+            checkBox3.Text = "Is Kinematic";
+            checkBox3.UseVisualStyleBackColor = true;
+            checkBox3.CheckedChanged += isObjectKinematic;
+            // 
+            // checkBox2
+            // 
+            checkBox2.AutoSize = true;
+            checkBox2.Location = new Point(10, 34);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(106, 19);
+            checkBox2.TabIndex = 1;
+            checkBox2.Text = "Use Movement";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Location = new Point(10, 9);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(87, 19);
+            checkBox1.TabIndex = 0;
+            checkBox1.Text = "Use Physics";
+            checkBox1.UseVisualStyleBackColor = true;
+            checkBox1.CheckedChanged += isPhysicsAdded;
             // 
             // panel3
             // 
@@ -273,10 +350,10 @@
             // LoadButton
             // 
             LoadButton.BackColor = Color.YellowGreen;
-            LoadButton.Location = new Point(-1, 272);
+            LoadButton.Location = new Point(-1, 410);
             LoadButton.Margin = new Padding(3, 2, 3, 2);
             LoadButton.Name = "LoadButton";
-            LoadButton.Size = new Size(362, 50);
+            LoadButton.Size = new Size(363, 50);
             LoadButton.TabIndex = 7;
             LoadButton.Text = "Load model";
             LoadButton.UseVisualStyleBackColor = false;
@@ -339,11 +416,22 @@
             // listBox1
             // 
             listBox1.FormattingEnabled = true;
-            listBox1.Location = new Point(0, 329);
+            listBox1.Location = new Point(0, 464);
             listBox1.Margin = new Padding(3, 2, 3, 2);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(363, 334);
+            listBox1.Size = new Size(363, 199);
             listBox1.TabIndex = 1;
+            // 
+            // checkBox4
+            // 
+            checkBox4.AutoSize = true;
+            checkBox4.Location = new Point(155, 9);
+            checkBox4.Name = "checkBox4";
+            checkBox4.Size = new Size(99, 19);
+            checkBox4.TabIndex = 16;
+            checkBox4.Text = "Use Collisions";
+            checkBox4.UseVisualStyleBackColor = true;
+            checkBox4.CheckedChanged += isCollision;
             // 
             // Form1
             // 
@@ -359,6 +447,8 @@
             FormClosing += MainForm_FormClosing;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            panel4.ResumeLayout(false);
+            panel4.PerformLayout();
             panel3.ResumeLayout(false);
             panel3.PerformLayout();
             panel2.ResumeLayout(false);
@@ -393,5 +483,12 @@
         private TextBox zScale;
         private Label label8;
         private Label label4;
+        private Panel panel4;
+        private CheckBox checkBox1;
+        private CheckBox checkBox2;
+        private CheckBox checkBox3;
+        private Label label9;
+        private TextBox massText;
+        private CheckBox checkBox4;
     }
 }

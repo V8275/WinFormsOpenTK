@@ -22,6 +22,7 @@ namespace WinFormsOpenTK
         private Renderer _renderer;
         private SceneInitializer _sceneInitializer;
         private List<SceneObject> _sceneObjects;
+        private PhysicsWorld _physicsWorld; // Добавлено
         private float _lastX, _lastY;
         private bool _firstMove = true;
         private bool _isMouseCaptured = true;
@@ -33,6 +34,9 @@ namespace WinFormsOpenTK
         private string _selectedModelPath = "";
         private string _selectedTexturePath = "";
         private string _selectedModelFormat;
+        private bool isPhysicsEnabled;
+        private bool isPhysicsKinematic;
+        private bool isCollide;
         private const int VK_W = 0x57;
         private const int VK_A = 0x41;
         private const int VK_S = 0x53;
@@ -112,6 +116,70 @@ namespace WinFormsOpenTK
             }
         }
 
+        private List<ObjectModule> CreateModules(SceneObject currentObject)
+        {
+            List<ObjectModule> modules = new List<ObjectModule>();
+            if (isPhysicsEnabled)
+            {
+                float m = 10;
+
+                if (!string.IsNullOrWhiteSpace(massText.Text))
+                {
+                    if (float.TryParse(massText.Text, out float result))
+                    {
+                        m = result;
+                    }
+                }
+
+                modules.Add(ModuleInitializer.AddPhysicsModule(currentObject, _physicsWorld, isPhysicsKinematic, m));
+            }
+
+            if (isCollide)
+            {
+                // Определяем размер коллайдера на основе модели
+                Vector3 colliderSize = CalculateModelBounds(currentObject.Model);
+
+                // Добавляем только коллизию, без физики
+                modules.Add(ModuleInitializer.AddCollisionModule(currentObject, _physicsWorld, colliderSize));
+                //TODO: добавление ТОЛЬКО коллизии
+            }
+
+            return modules;
+        }
+
+        private Vector3 CalculateModelBounds(Model model)
+        {
+            if (model?.VModel?.Vertices == null)
+                return new Vector3(1f, 1f, 1f);
+
+            float minX = float.MaxValue, maxX = float.MinValue;
+            float minY = float.MaxValue, maxY = float.MinValue;
+            float minZ = float.MaxValue, maxZ = float.MinValue;
+
+            var vertices = model.VModel.Vertices;
+            for (int i = 0; i < vertices.Count; i += 8)
+            {
+                if (i + 2 >= vertices.Count) break;
+
+                float x = vertices[i];
+                float y = vertices[i + 1];
+                float z = vertices[i + 2];
+
+                minX = Math.Min(minX, x);
+                maxX = Math.Max(maxX, x);
+                minY = Math.Min(minY, y);
+                maxY = Math.Max(maxY, y);
+                minZ = Math.Min(minZ, z);
+                maxZ = Math.Max(maxZ, z);
+            }
+
+            return new Vector3(
+                maxX - minX,
+                maxY - minY,
+                maxZ - minZ
+            );
+        }
+
         private void BtnAddObject_Click(object sender, EventArgs e)
         {
             try
@@ -149,6 +217,8 @@ namespace WinFormsOpenTK
                     newObj = new SceneObject(model, position, Vector3.Zero, scale);
                     objectTypeName = "Static";
                 }
+
+                newObj.MakeModuleList(CreateModules(newObj));
 
                 newObj.Start();
                 _sceneObjects.Add(newObj);
@@ -233,6 +303,10 @@ namespace WinFormsOpenTK
             _fpsTimer.Start();
 
             Console.WriteLine("OpenGL initialized");
+
+            _physicsWorld.Initialize();
+
+            Console.WriteLine("Physics initialized");
         }
 
         private void GlControl_Paint(object sender, PaintEventArgs e) { }
@@ -298,6 +372,7 @@ namespace WinFormsOpenTK
         {
             _light = new Light(new Vector3(-5f, 3.0f, 3.0f), Color.AntiqueWhite);
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
+            _physicsWorld = new PhysicsWorld(); // Добавлено
 
             // Убедитесь, что пути к шейдерам правильные
             string vertShaderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shaders", "Vert", "shader.vert");
@@ -333,6 +408,9 @@ namespace WinFormsOpenTK
                 if (_isMouseCaptured && !_glControl.IsDisposed)
                 {
                     ProcessInput();
+
+                    float deltaTime = _inputTimer.Interval / 1000.0f;
+                    _physicsWorld.Update(deltaTime);
                 }
             };
 
@@ -400,6 +478,7 @@ namespace WinFormsOpenTK
                 obj.Model.Shader?.Dispose();
             }
 
+            _physicsWorld?.Dispose();
             _glControl?.Dispose();
         }
 
@@ -420,6 +499,37 @@ namespace WinFormsOpenTK
 
             if (!reg.IsMatch(newText))
                 e.Handled = true;
+        }
+
+        private void isPhysicsAdded(object sender, EventArgs e)
+        {
+            var check = sender as CheckBox;
+            isPhysicsEnabled = check.Checked;
+        }
+
+        private void isObjectKinematic(object sender, EventArgs e)
+        {
+            var check = sender as CheckBox;
+            isPhysicsKinematic = check.Checked;
+        }
+
+        private void isCollision(object sender, EventArgs e)
+        {
+            var check = sender as CheckBox;
+            isCollide = check.Checked;
+        }
+    }
+
+    public static class ModuleInitializer
+    {
+        public static PhysicsModule AddPhysicsModule(SceneObject sceneObject, PhysicsWorld world,  bool isKinematic, float mass = 10)
+        {
+            return new PhysicsModule(sceneObject, world, mass, isKinematic);
+        }
+
+        public static CollisionModule AddCollisionModule(SceneObject sceneObject, PhysicsWorld world, Vector3 vector3)
+        {
+            return new CollisionModule(sceneObject, world, vector3);
         }
     }
 }

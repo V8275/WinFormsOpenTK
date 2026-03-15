@@ -17,13 +17,12 @@ namespace OpenTKProject
         /// <param name="model">Model's geometry</param>
         /// <param name="position">Model' start position</param>
         /// <param name="newmodules">Model's start array of extension code modules</param>
-        public SceneObject(Model model, Vector3 position, List<ObjectModule> newmodules = null)
+        public SceneObject(Model model, Vector3 position)
         {
             Model = model;
             Position = position;
             Rotation = Vector3.Zero;
             Scale = Vector3.One;
-            MakeModuleList(newmodules);
         }
 
         /// <summary>
@@ -33,13 +32,12 @@ namespace OpenTKProject
         /// <param name="position">Model' start position</param>
         /// <param name="scale">Model's start scale</param>
         /// <param name="newmodules">Model's start array of extension code modules</param>
-        public SceneObject(Model model, Vector3 position, Vector3 scale, List<ObjectModule> newmodules = null)
+        public SceneObject(Model model, Vector3 position, Vector3 scale)
         {
             Model = model;
             Position = position;
             Rotation = Vector3.Zero;
             Scale = scale;
-            MakeModuleList(newmodules);
         }
 
         /// <summary>
@@ -50,13 +48,12 @@ namespace OpenTKProject
         /// <param name="rotation">Model's start rotation</param>
         /// <param name="scale">Model's start scale</param>
         /// <param name="newmodules">Model's start array of extension code modules</param>
-        public SceneObject(Model model, Vector3 position, Vector3 rotation, Vector3 scale, List<ObjectModule> newmodules = null)
+        public SceneObject(Model model, Vector3 position, Vector3 rotation, Vector3 scale)
         {
             Model = model;
             Position = position;
             Rotation = rotation;
             Scale = scale;
-            MakeModuleList(newmodules);
         }
 
         public virtual void Start()
@@ -91,10 +88,12 @@ namespace OpenTKProject
             }
         }
 
-        protected void MakeModuleList(List<ObjectModule> newmodules)
+        public void MakeModuleList(List<ObjectModule> newmodules)
         {
-            if (newmodules != null) Modules = newmodules;
-            else Modules = new List<ObjectModule>();
+            if(Modules == null) Modules = new List<ObjectModule>();
+
+            if (newmodules != null) 
+                Modules.AddRange(newmodules);
         }
 
         public Matrix4 GetModelMatrix()
