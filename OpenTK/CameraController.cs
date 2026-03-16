@@ -1,31 +1,37 @@
 ﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using Keys = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
 
 namespace OpenTKProject
 {
+    public enum CameraMode
+    {
+        Free,        // Свободный режим
+        Orbit        // Вращение вокруг объекта
+    }
+
     public class CameraController
     {
         private float _speed = 1.5f;
+        private float _zoomSpeed = 2.0f;
+        private CameraMode _currentMode = CameraMode.Free;
+        private SceneObject _targetObject = null;
+        private float _orbitDistance = 0.5f;
+        private float _minDistance = 0.5f;
+        private float _maxDistance = 10.0f;
 
         public Vector3 Position { get; private set; }
         public Vector3 Front { get; private set; }
         public Vector3 Up { get; private set; }
         public Vector3 Right { get; private set; }
-        public float Yaw { get; private set; }
-        public float Pitch { get; private set; }
+        public float Yaw { get; private set; } = -90.0f;
+        public float Pitch { get; private set; } = 0.0f;
         public float MouseSensitivity { get; set; } = 0.1f;
-
-        public CameraController()
-        {
-            InitializeVectors();
-        }
+        public CameraMode CurrentMode => _currentMode;
 
         public CameraController(float speed, Vector3 position)
         {
             _speed = speed;
             Position = position;
-            InitializeVectors();
+            UpdateVectors();
         }
 
         public void MoveForward(float deltaTime) => Position += Front * _speed * deltaTime;
@@ -35,59 +41,29 @@ namespace OpenTKProject
         public void MoveUp(float deltaTime) => Position += Up * _speed * deltaTime;
         public void MoveDown(float deltaTime) => Position -= Up * _speed * deltaTime;
 
-        private void InitializeVectors()
+        public void Zoom(float delta)
         {
-            Front = -Vector3.UnitZ;
-            Up = Vector3.UnitY;
-            Right = Vector3.UnitX;
-            Yaw = -90.0f;
-            Pitch = 0.0f;
-            UpdateVectors();
+            if (_currentMode == CameraMode.Free)
+            {
+                _speed += delta * 0.1f;
+                _speed = MathHelper.Clamp(_speed, 0.5f, 20.0f);
+            }
+            else if (_currentMode == CameraMode.Orbit && _targetObject != null)
+            {
+                _orbitDistance -= delta * _zoomSpeed * 0.1f;
+                _orbitDistance = MathHelper.Clamp(_orbitDistance, _minDistance, _maxDistance);
+                UpdateOrbitPosition();
+            }
         }
 
         public Matrix4 GetViewMatrix()
         {
+            if (_currentMode == CameraMode.Orbit && _targetObject != null)
+            {
+                UpdateOrbitPosition();
+                return Matrix4.LookAt(Position, _targetObject.Position, Up);
+            }
             return Matrix4.LookAt(Position, Position + Front, Up);
-        }
-
-        public void SetSpeed(float speed)
-        {
-            _speed = speed;
-        }
-
-        public void Move(KeyboardState input, float deltaTime)
-        {
-            float velocity = _speed * deltaTime;
-
-            if (input.IsKeyDown(Keys.W))
-            {
-                Position += Front * velocity; // Forward
-            }
-
-            if (input.IsKeyDown(Keys.S))
-            {
-                Position -= Front * velocity; // Backwards
-            }
-
-            if (input.IsKeyDown(Keys.A))
-            {
-                Position -= Right * velocity; // Left
-            }
-
-            if (input.IsKeyDown(Keys.D))
-            {
-                Position += Right * velocity; // Right
-            }
-
-            if (input.IsKeyDown(Keys.Space))
-            {
-                Position += Up * velocity; // Up
-            }
-
-            if (input.IsKeyDown(Keys.LeftShift))
-            {
-                Position -= Up * velocity; // Down
-            }
         }
 
         public void RotateCamera(float xOffset, float yOffset)
@@ -97,28 +73,55 @@ namespace OpenTKProject
 
             Yaw += xOffset;
             Pitch += yOffset;
+            Pitch = MathHelper.Clamp(Pitch, -89.0f, 89.0f);
 
-            if (Pitch > 89.0f)
-                Pitch = 89.0f;
-            if (Pitch < -89.0f)
-                Pitch = -89.0f;
-
-            UpdateVectors();
+            if (_currentMode == CameraMode.Free)
+                UpdateVectors();
+            else if (_currentMode == CameraMode.Orbit && _targetObject != null)
+                UpdateOrbitPosition();
         }
 
         private void UpdateVectors()
         {
-            Vector3 newFront;
-            newFront.X = MathF.Cos(MathHelper.DegreesToRadians(Yaw)) *
-                         MathF.Cos(MathHelper.DegreesToRadians(Pitch));
-            newFront.Y = MathF.Sin(MathHelper.DegreesToRadians(Pitch));
-            newFront.Z = MathF.Sin(MathHelper.DegreesToRadians(Yaw)) *
-                         MathF.Cos(MathHelper.DegreesToRadians(Pitch));
-
-            Front = Vector3.Normalize(newFront);
-
+            Front = Vector3.Normalize(new Vector3(
+                MathF.Cos(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch)),
+                MathF.Sin(MathHelper.DegreesToRadians(Pitch)),
+                MathF.Sin(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch))
+            ));
             Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
             Up = Vector3.Normalize(Vector3.Cross(Right, Front));
+        }
+
+        private void UpdateOrbitPosition()
+        {
+            if (_targetObject == null) return;
+
+            Position = _targetObject.Position + new Vector3(
+                MathF.Cos(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch)) * _orbitDistance,
+                -MathF.Sin(MathHelper.DegreesToRadians(Pitch)) * _orbitDistance,
+                MathF.Sin(MathHelper.DegreesToRadians(Yaw)) * MathF.Cos(MathHelper.DegreesToRadians(Pitch)) * _orbitDistance
+            );
+
+            Front = Vector3.Normalize(_targetObject.Position - Position);
+            Right = Vector3.Normalize(Vector3.Cross(Front, Vector3.UnitY));
+            Up = Vector3.Normalize(Vector3.Cross(Right, Front));
+        }
+
+        public void SetFreeMode() => _currentMode = CameraMode.Free;
+
+        public void SetOrbitMode(SceneObject target, float distance = 5.0f)
+        {
+            if (target == null) return;
+            _currentMode = CameraMode.Orbit;
+            _targetObject = target;
+            _orbitDistance = MathHelper.Clamp(distance, _minDistance, _maxDistance);
+            UpdateOrbitPosition();
+        }
+
+        public void SetDistanceLimits(float min, float max)
+        {
+            _minDistance = min;
+            _maxDistance = max;
         }
     }
 }

@@ -1,21 +1,59 @@
 ﻿using OpenTK.Mathematics;
-using OpenTK.Windowing.GraphicsLibraryFramework;
-using Keys = OpenTK.Windowing.GraphicsLibraryFramework.Keys;
+using System.Runtime.InteropServices;
+using WinFormsOpenTK;
 
 namespace OpenTKProject
 {
     public class MoveModule : ObjectModule
     {
+        [DllImport("user32.dll")]
+        private static extern short GetAsyncKeyState(int vKey);
+
         private SceneObject _owner;
-        private PhysicsModule _physicsModule;
-        private KeyboardState _keyboard;
-        private float _moveSpeed = 5.0f;
+        private PhysicsModule _physics;
+        private float _moveSpeed = 10.0f;
+        private float _maxSpeed = 20.0f;
+        private float _acceleration = 50.0f;
+        private float _damping = 10.0f;
+        private float _jumpForce = 10.0f;
         private bool _usePhysics = true;
+        private MovementMode _movementMode = MovementMode.Velocity;
+
+        // Параметры поворота
+        private bool _rotateToMovement = true;
+        private float _rotationSpeed = 5.0f;
+        private Vector3 _lastMovementDirection = -Vector3.UnitZ; // По умолчанию смотрим вперед
+        private float _targetRotationY = 0;
+        private bool _smoothRotation = true;
 
         public float MoveSpeed
         {
             get => _moveSpeed;
             set => _moveSpeed = value;
+        }
+
+        public float MaxSpeed
+        {
+            get => _maxSpeed;
+            set => _maxSpeed = value;
+        }
+
+        public float Acceleration
+        {
+            get => _acceleration;
+            set => _acceleration = value;
+        }
+
+        public float Damping
+        {
+            get => _damping;
+            set => _damping = value;
+        }
+
+        public float JumpForce
+        {
+            get => _jumpForce;
+            set => _jumpForce = value;
         }
 
         public bool UsePhysics
@@ -24,97 +62,297 @@ namespace OpenTKProject
             set => _usePhysics = value;
         }
 
-        public MoveModule(SceneObject owner, KeyboardState keyboard, float moveSpeed = 5.0f)
+        public MovementMode CurrentMovementMode
+        {
+            get => _movementMode;
+            set => _movementMode = value;
+        }
+
+        public bool IsGrounded => _physics?.IsGrounded ?? false;
+
+        // Свойства для поворота
+        public bool RotateToMovement
+        {
+            get => _rotateToMovement;
+            set => _rotateToMovement = value;
+        }
+
+        public float RotationSpeed
+        {
+            get => _rotationSpeed;
+            set => _rotationSpeed = value;
+        }
+
+        public bool SmoothRotation
+        {
+            get => _smoothRotation;
+            set => _smoothRotation = value;
+        }
+
+        public MoveModule(SceneObject owner, float moveSpeed = 10.0f)
         {
             _owner = owner;
-            _keyboard = keyboard;
             _moveSpeed = moveSpeed;
         }
 
         public override void Start()
         {
-            _physicsModule = _owner.GetModule<PhysicsModule>();
+            _physics = _owner.GetModule<PhysicsModule>();
+            _targetRotationY = _owner.Rotation.Y;
         }
 
         public override void Update(float time)
         {
-            if (_keyboard == null) return;
-
-            Vector3 movement = Vector3.Zero;
-
-            if (_keyboard.IsKeyDown(Keys.W))
-                movement.Z -= _moveSpeed * time;
-            if (_keyboard.IsKeyDown(Keys.S))
-                movement.Z += _moveSpeed * time;
-
-            if (_keyboard.IsKeyDown(Keys.A))
-                movement.X -= _moveSpeed * time;
-            if (_keyboard.IsKeyDown(Keys.D))
-                movement.X += _moveSpeed * time;
-
-            if (_keyboard.IsKeyDown(Keys.Q))
-                movement.Y -= _moveSpeed * time;
-            if (_keyboard.IsKeyDown(Keys.E))
-                movement.Y += _moveSpeed * time;
-
-            if (_usePhysics && _physicsModule != null && _physicsModule.RigidBody != null)
+            if (_usePhysics && _physics != null)
             {
-                MoveWithPhysics(movement);
-            }
-            else
-            {
-                MoveDirect(movement);
+                Vector3 inputDirection = GetInputDirection();
+
+                if (inputDirection != Vector3.Zero)
+                {
+                    MoveWithPhysics(inputDirection, time);
+                }
+                else
+                {
+                    // Применяем затухание когда нет ввода
+                    _physics.ApplyHorizontalDamping(_damping, time, _movementMode);
+                }
+
+                // Обновляем поворот модели
+                UpdateRotation(time);
             }
         }
 
-        private void MoveWithPhysics(Vector3 movement)
+        private Vector3 GetInputDirection()
         {
-            if (movement == Vector3.Zero) return;
+            Vector3 direction = Vector3.Zero;
 
-            var rb = _physicsModule.RigidBody;
+            if ((GetAsyncKeyState(KeyStates.VK_W) & 0x8000) != 0)
+                direction.Z -= 1;
+            if ((GetAsyncKeyState(KeyStates.VK_S) & 0x8000) != 0)
+                direction.Z += 1;
+            if ((GetAsyncKeyState(KeyStates.VK_A) & 0x8000) != 0)
+                direction.X -= 1;
+            if ((GetAsyncKeyState(KeyStates.VK_D) & 0x8000) != 0)
+                direction.X += 1;
+
+            if ((GetAsyncKeyState(KeyStates.VK_Q) & 0x8000) != 0)
+                direction.Y -= 1;
+            if ((GetAsyncKeyState(KeyStates.VK_E) & 0x8000) != 0)
+                direction.Y += 1;
+            if ((GetAsyncKeyState(KeyStates.VK_CONTROL) & 0x8000) != 0)
+                direction.Y -= 1;
+
+            if ((GetAsyncKeyState(KeyStates.VK_SPACE) & 0x8000) != 0)
+            {
+                Jump();
+            }
+
+            return direction;
+        }
+
+        private void UpdateRotation(float deltaTime)
+        {
+            if (!_rotateToMovement) return;
+
+            Vector3 moveDirection = GetMovementDirection();
+
+            if (moveDirection.LengthSquared > 0.01f)
+            {
+                _lastMovementDirection = moveDirection;
+                _targetRotationY = (float)Math.Atan2(-moveDirection.X, -moveDirection.Z);
+            }
+
+            if (_smoothRotation)
+            {
+                float currentY = _owner.Rotation.Y;
+                float targetY = _targetRotationY;
+
+                float delta = targetY - currentY;
+                if (delta > Math.PI) delta -= 2 * (float)Math.PI;
+                if (delta < -Math.PI) delta += 2 * (float)Math.PI;
+
+                float newY = currentY + delta * Math.Clamp(_rotationSpeed * deltaTime, 0, 1);
+                _owner.Rotation = new Vector3(_owner.Rotation.X, newY, _owner.Rotation.Z);
+            }
+            else
+            {
+                _owner.Rotation = new Vector3(_owner.Rotation.X, _targetRotationY, _owner.Rotation.Z);
+            }
+        }
+
+        private Vector3 GetMovementDirection()
+        {
+            if (_usePhysics && _physics != null)
+            {
+                Vector3 velocity = _physics.Velocity;
+                Vector3 horizontalVelocity = new Vector3(velocity.X, 0, velocity.Z);
+
+                if (horizontalVelocity.LengthSquared > 0.01f)
+                {
+                    return Vector3.Normalize(horizontalVelocity);
+                }
+            }
+
+            return _lastMovementDirection;
+        }
+
+        private void Jump()
+        {
+            if (!IsGrounded || _physics?.RigidBody == null) return;
+
+            var rb = _physics.RigidBody;
+            if (rb.IsStaticObject || rb.IsKinematicObject) return;
+
+            switch (_movementMode)
+            {
+                case MovementMode.Force:
+                    Vector3 jumpForce = new Vector3(0, _jumpForce * _physics.Mass, 0);
+                    _physics.ApplyForce(jumpForce);
+                    break;
+
+                case MovementMode.Impulse:
+                    Vector3 jumpImpulse = new Vector3(0, _jumpForce * _physics.Mass, 0);
+                    _physics.ApplyImpulse(jumpImpulse);
+                    break;
+
+                case MovementMode.Velocity:
+                    _physics.VerticalVelocity = _jumpForce;
+                    break;
+            }
+        }
+
+        private void MoveWithPhysics(Vector3 direction, float deltaTime)
+        {
+            var rb = _physics.RigidBody;
+            if (rb == null) return;
 
             if (rb.IsKinematicObject)
             {
-                var newPos = _owner.Position + movement;
-                rb.WorldTransform = BulletSharp.Math.Matrix.Translation(
-                    newPos.X, newPos.Y, newPos.Z);
-                _owner.Position = newPos;
+                _physics.MoveKinematic(direction * _moveSpeed * deltaTime);
             }
             else
             {
-                Vector3 force = movement * 10.0f;
-                _physicsModule.ApplyForce(force);
+                switch (_movementMode)
+                {
+                    case MovementMode.Force:
+                        // F = m * a
+                        Vector3 force = direction * _acceleration * _physics.Mass;
+                        _physics.ApplyForce(force);
+                        _physics.ClampHorizontalSpeed(_maxSpeed);
+                        break;
+
+                    case MovementMode.Impulse:
+                        Vector3 impulse = direction * _moveSpeed * _physics.Mass;
+                        _physics.ApplyImpulse(impulse);
+                        _physics.ClampHorizontalSpeed(_maxSpeed);
+                        break;
+
+                    case MovementMode.Velocity:
+                        Vector3 targetVelocity = direction * _moveSpeed;
+                        Vector3 currentHorizontal = _physics.HorizontalVelocity;
+
+                        float t = Math.Clamp(_acceleration * deltaTime, 0, 1);
+                        Vector3 newHorizontal = Vector3.Lerp(currentHorizontal,
+                            new Vector3(targetVelocity.X, 0, targetVelocity.Z), t);
+
+                        if (Math.Abs(direction.Y) > 0.1f)
+                        {
+                            _physics.VerticalVelocity = direction.Y * _moveSpeed;
+                        }
+
+                        _physics.SetHorizontalVelocity(newHorizontal);
+                        break;
+                }
             }
         }
 
-        private void MoveDirect(Vector3 movement)
-        {
-            _owner.Position += movement;
-        }
-
         /// <summary>
-        /// Обновить ссылку на клавиатуру (если нужно)
+        /// Установить направление взгляда вручную
         /// </summary>
-        public void UpdateKeyboard(KeyboardState keyboard)
+        public void SetLookDirection(Vector3 direction)
         {
-            _keyboard = keyboard;
+            if (direction.LengthSquared > 0.01f)
+            {
+                direction = Vector3.Normalize(new Vector3(direction.X, 0, direction.Z));
+                _targetRotationY = (float)Math.Atan2(direction.X, -direction.Z);
+                _lastMovementDirection = direction;
+            }
         }
 
         /// <summary>
-        /// Движение в определенном направлении (для использования из другого кода)
+        /// Повернуть модель к указанной точке
+        /// </summary>
+        public void LookAt(Vector3 targetPoint)
+        {
+            Vector3 direction = targetPoint - _owner.Position;
+            SetLookDirection(direction);
+        }
+
+        /// <summary>
+        /// Установить угол поворота вручную (в радианах)
+        /// </summary>
+        public void SetRotationY(float angleY)
+        {
+            _targetRotationY = angleY;
+            _owner.Rotation = new Vector3(_owner.Rotation.X, angleY, _owner.Rotation.Z);
+
+            _lastMovementDirection = new Vector3(
+                (float)Math.Sin(angleY),
+                0,
+                -(float)Math.Cos(angleY)
+            );
+        }
+
+        /// <summary>
+        /// Выполнить прыжок
+        /// </summary>
+        public void PerformJump()
+        {
+            Jump();
+        }
+
+        /// <summary>
+        /// Движение в определенном направлении
         /// </summary>
         public void MoveInDirection(Vector3 direction, float deltaTime)
         {
-            Vector3 movement = direction.Normalized() * _moveSpeed * deltaTime;
+            if (_usePhysics && _physics != null)
+            {
+                if (direction.LengthSquared > 0)
+                {
+                    Vector3 horizontalDir = new Vector3(direction.X, 0, direction.Z);
+                    if (horizontalDir.LengthSquared > 0)
+                        horizontalDir = Vector3.Normalize(horizontalDir);
 
-            if (_usePhysics && _physicsModule != null)
-            {
-                MoveWithPhysics(movement);
+                    Vector3 finalDirection = new Vector3(
+                        horizontalDir.X,
+                        direction.Y,
+                        horizontalDir.Z
+                    );
+
+                    MoveWithPhysics(finalDirection, deltaTime);
+                }
+                else
+                {
+                    _physics.ApplyHorizontalDamping(_damping, deltaTime, _movementMode);
+                }
             }
-            else
-            {
-                MoveDirect(movement);
-            }
+        }
+
+        /// <summary>
+        /// Мгновенное перемещение
+        /// </summary>
+        public void Teleport(Vector3 newPosition)
+        {
+            _physics?.Teleport(newPosition);
+        }
+
+        /// <summary>
+        /// Остановить движение
+        /// </summary>
+        public void Stop()
+        {
+            _physics?.Stop();
         }
     }
 }

@@ -37,6 +37,7 @@ namespace WinFormsOpenTK
         private bool isPhysicsEnabled;
         private bool isPhysicsKinematic;
         private bool isCollide;
+        private bool isMoveEnable;
 
         public Form1()
         {
@@ -45,7 +46,6 @@ namespace WinFormsOpenTK
             InitializeScene();
             SetupTimers();
             LoadData();
-            //LoadModel("Models/Frog.obj", "Models/Textures/FrogTexture.jpg");
         }
 
         private void LoadData()
@@ -94,7 +94,6 @@ namespace WinFormsOpenTK
             {
                 int index = listBox1.SelectedIndex;
 
-                // Clean up resources
                 var obj = _sceneObjects[index];
                 obj.Model.Shader?.Dispose();
 
@@ -124,7 +123,23 @@ namespace WinFormsOpenTK
                 }
 
                 modules.Add(ModuleInitializer.AddPhysicsModule(currentObject, _physicsWorld, isPhysicsKinematic, m));
+
+                if (isMoveEnable)
+                {
+                    float s = 10;
+
+                    if (!string.IsNullOrWhiteSpace(speedBox.Text))
+                    {
+                        if (float.TryParse(speedBox.Text, out float result))
+                        {
+                            s = result;
+                        }
+                    }
+
+                    modules.Add(ModuleInitializer.AddMoveModule(currentObject, s));
+                }
             }
+            
 
             if (isCollide)
             {
@@ -218,10 +233,6 @@ namespace WinFormsOpenTK
                 DeleteModelsBtn.Enabled = true;
                 UpdateObjectsCount();
 
-                //_selectedModelPath = "";
-                //_selectedTexturePath = "";
-                //LoadButton.Enabled = false;
-
                 Console.WriteLine($"Object added: {objectTypeName} at position {position}");
             }
             catch (Exception ex)
@@ -271,6 +282,7 @@ namespace WinFormsOpenTK
             _glControl.MouseMove += GlControl_MouseMove;
             _glControl.MouseUp += GlControl_MouseUp;
             _glControl.LostFocus += GlControl_LostFocus;
+            _glControl.MouseWheel += GlControl_MouseWheel;
             _glControl.TabStop = true;
         }
 
@@ -436,22 +448,32 @@ namespace WinFormsOpenTK
         {
             float deltaTime = _inputTimer.Interval / 1000.0f;
 
-            if ((GetAsyncKeyState(KeyStates.VK_W) & 0x8000) != 0)
-                _cameraController.MoveForward(deltaTime);
-            if ((GetAsyncKeyState(KeyStates.VK_S) & 0x8000) != 0)
-                _cameraController.MoveBackward(deltaTime);
-            if ((GetAsyncKeyState(KeyStates.VK_A) & 0x8000) != 0)
-                _cameraController.MoveLeft(deltaTime);
-            if ((GetAsyncKeyState(KeyStates.VK_D) & 0x8000) != 0)
-                _cameraController.MoveRight(deltaTime);
-            if ((GetAsyncKeyState(KeyStates.VK_SPACE) & 0x8000) != 0)
-                _cameraController.MoveUp(deltaTime);
-            if ((GetAsyncKeyState(KeyStates.VK_CONTROL) & 0x8000) != 0)
-                _cameraController.MoveDown(deltaTime);
+            if (_cameraController.CurrentMode == CameraMode.Free)
+            {
+                if ((GetAsyncKeyState(KeyStates.VK_W) & 0x8000) != 0) _cameraController.MoveForward(deltaTime);
+                if ((GetAsyncKeyState(KeyStates.VK_S) & 0x8000) != 0) _cameraController.MoveBackward(deltaTime);
+                if ((GetAsyncKeyState(KeyStates.VK_A) & 0x8000) != 0) _cameraController.MoveLeft(deltaTime);
+                if ((GetAsyncKeyState(KeyStates.VK_D) & 0x8000) != 0) _cameraController.MoveRight(deltaTime);
+            }
+
+            // Ёти клавиши работают в обоих режимах
+            if ((GetAsyncKeyState(KeyStates.VK_SPACE) & 0x8000) != 0) _cameraController.MoveUp(deltaTime);
+            if ((GetAsyncKeyState(KeyStates.VK_CONTROL) & 0x8000) != 0) _cameraController.MoveDown(deltaTime);
+
             if ((GetAsyncKeyState(KeyStates.VK_ESCAPE) & 0x8001) != 0)
             {
                 _isMouseCaptured = false;
                 Cursor.Show();
+            }
+        }
+
+        private void GlControl_MouseWheel(object sender, MouseEventArgs e)
+        {
+            if (_isMouseCaptured)
+            {
+                // e.Delta обычно равно 120 за один шаг колесика
+                float delta = e.Delta / 120.0f; // Ќормализуем до ±1
+                _cameraController.Zoom(delta);
             }
         }
 
@@ -506,6 +528,31 @@ namespace WinFormsOpenTK
             var check = sender as CheckBox;
             isCollide = check.Checked;
         }
+
+        private void isMove(object sender, EventArgs e)
+        {
+            var check = sender as CheckBox;
+            isMoveEnable = check.Checked;
+        }
+
+        private void BindCamToSelect(object sender, EventArgs e)
+        {
+            if (listBox1.SelectedIndex >= 0 &&
+                listBox1.SelectedIndex < _sceneObjects.Count)
+            {
+                int index = listBox1.SelectedIndex;
+
+                var obj = _sceneObjects[index];
+
+                _cameraController.SetOrbitMode(obj, 8.0f);
+            }
+        }
+
+        private void UnbindCam(object sender, EventArgs e)
+        {
+            _cameraController.SetFreeMode();
+            listBox1.ClearSelected();
+        }
     }
 
     public static class ModuleInitializer
@@ -520,10 +567,10 @@ namespace WinFormsOpenTK
             return new CollisionModule(sceneObject, world, vector3);
         }
 
-        //public static MoveModule AddMoveModule(SceneObject sceneObject)
-        //{
-        //    return new MoveModule(sceneObject, )
-        //}
+        public static MoveModule AddMoveModule(SceneObject sceneObject, float speed = 10)
+        {
+            return new MoveModule(sceneObject, speed);
+        }
     }
 
     public static class KeyStates
