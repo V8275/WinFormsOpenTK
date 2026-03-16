@@ -1,6 +1,4 @@
 using BulletSharp;
-using BulletSharp.Math;
-using System.Collections.Generic;
 using Matrix = BulletSharp.Math.Matrix;
 using BulletVector3 = BulletSharp.Math.Vector3;
 using OpenTKVector3 = OpenTK.Mathematics.Vector3;

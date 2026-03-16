@@ -96,6 +96,21 @@ namespace OpenTKProject
                 Modules.AddRange(newmodules);
         }
 
+        public T GetModule<T>() where T : ObjectModule
+        {
+            if (Modules == null) return null;
+
+            foreach (var module in Modules)
+            {
+                if (module is T typedModule)
+                {
+                    return typedModule;
+                }
+            }
+
+            return null;
+        }
+
         public Matrix4 GetModelMatrix()
         {
             return Matrix4.CreateScale(Scale) *

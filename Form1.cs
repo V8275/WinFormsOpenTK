@@ -22,7 +22,7 @@ namespace WinFormsOpenTK
         private Renderer _renderer;
         private SceneInitializer _sceneInitializer;
         private List<SceneObject> _sceneObjects;
-        private PhysicsWorld _physicsWorld; // Добавлено
+        private PhysicsWorld _physicsWorld;
         private float _lastX, _lastY;
         private bool _firstMove = true;
         private bool _isMouseCaptured = true;
@@ -37,13 +37,6 @@ namespace WinFormsOpenTK
         private bool isPhysicsEnabled;
         private bool isPhysicsKinematic;
         private bool isCollide;
-        private const int VK_W = 0x57;
-        private const int VK_A = 0x41;
-        private const int VK_S = 0x53;
-        private const int VK_D = 0x44;
-        private const int VK_SPACE = 0x20;
-        private const int VK_CONTROL = 0x11;
-        private const int VK_ESCAPE = 0x1B;
 
         public Form1()
         {
@@ -52,7 +45,6 @@ namespace WinFormsOpenTK
             InitializeScene();
             SetupTimers();
             LoadData();
-
             //LoadModel("Models/Frog.obj", "Models/Textures/FrogTexture.jpg");
         }
 
@@ -136,12 +128,9 @@ namespace WinFormsOpenTK
 
             if (isCollide)
             {
-                // Определяем размер коллайдера на основе модели
                 Vector3 colliderSize = CalculateModelBounds(currentObject.Model);
 
-                // Добавляем только коллизию, без физики
                 modules.Add(ModuleInitializer.AddCollisionModule(currentObject, _physicsWorld, colliderSize));
-                //TODO: добавление ТОЛЬКО коллизии
             }
 
             return modules;
@@ -372,9 +361,8 @@ namespace WinFormsOpenTK
         {
             _light = new Light(new Vector3(-5f, 3.0f, 3.0f), Color.AntiqueWhite);
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
-            _physicsWorld = new PhysicsWorld(); // Добавлено
+            _physicsWorld = new PhysicsWorld();
 
-            // Убедитесь, что пути к шейдерам правильные
             string vertShaderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shaders", "Vert", "shader.vert");
             string fragShaderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shaders", "Frag", "shader.frag");
 
@@ -448,19 +436,19 @@ namespace WinFormsOpenTK
         {
             float deltaTime = _inputTimer.Interval / 1000.0f;
 
-            if ((GetAsyncKeyState(VK_W) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_W) & 0x8000) != 0)
                 _cameraController.MoveForward(deltaTime);
-            if ((GetAsyncKeyState(VK_S) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_S) & 0x8000) != 0)
                 _cameraController.MoveBackward(deltaTime);
-            if ((GetAsyncKeyState(VK_A) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_A) & 0x8000) != 0)
                 _cameraController.MoveLeft(deltaTime);
-            if ((GetAsyncKeyState(VK_D) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_D) & 0x8000) != 0)
                 _cameraController.MoveRight(deltaTime);
-            if ((GetAsyncKeyState(VK_SPACE) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_SPACE) & 0x8000) != 0)
                 _cameraController.MoveUp(deltaTime);
-            if ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_CONTROL) & 0x8000) != 0)
                 _cameraController.MoveDown(deltaTime);
-            if ((GetAsyncKeyState(VK_ESCAPE) & 0x8001) != 0)
+            if ((GetAsyncKeyState(KeyStates.VK_ESCAPE) & 0x8001) != 0)
             {
                 _isMouseCaptured = false;
                 Cursor.Show();
@@ -531,5 +519,24 @@ namespace WinFormsOpenTK
         {
             return new CollisionModule(sceneObject, world, vector3);
         }
+
+        //public static MoveModule AddMoveModule(SceneObject sceneObject)
+        //{
+        //    return new MoveModule(sceneObject, )
+        //}
+    }
+
+    public static class KeyStates
+    {
+        public static int VK_W = 0x57;
+        public static int VK_A = 0x41;
+        public static int VK_S = 0x53;
+        public static int VK_D = 0x44;
+        public static int VK_SPACE = 0x20;
+        public static int VK_CONTROL = 0x11;
+        public static int VK_ESCAPE = 0x1B;
+        public static int VK_Q = 0x51;
+        public static int VK_E = 0x45;
+        public static int VK_SHIFT = 0x10;
     }
 }
