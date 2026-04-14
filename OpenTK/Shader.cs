@@ -1,5 +1,6 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using System.Reflection;
 
 namespace OpenTKProject
 {
@@ -25,9 +26,8 @@ namespace OpenTKProject
             vPath = vertexPath;
             fPath = fragmentPath;
 
-            string VertexShaderSource = File.ReadAllText(vertexPath);
-
-            string FragmentShaderSource = File.ReadAllText(fragmentPath);
+            string VertexShaderSource = LoadStringFromResource(vertexPath);
+            string FragmentShaderSource = LoadStringFromResource(fragmentPath);
 
             VertexShader = GL.CreateShader(ShaderType.VertexShader);
             GL.ShaderSource(VertexShader, VertexShaderSource);
@@ -38,6 +38,27 @@ namespace OpenTKProject
             CompileShaders();
             CombineShaders();
             ClearMemory();
+        }
+
+        public string LoadStringFromResource(string path)
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            string Result = "";
+
+            try
+            {
+                using (Stream stream = assembly.GetManifestResourceStream(path))
+                using (StreamReader reader = new StreamReader(stream))
+                {
+                    Result = reader.ReadToEnd();
+                }
+            }
+            catch (ArgumentNullException)
+            {
+                Result = File.ReadAllText(path);
+            }
+
+            return Result;
         }
 
         public void CompileShaders()

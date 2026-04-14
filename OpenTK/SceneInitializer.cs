@@ -16,9 +16,8 @@ namespace OpenTKProject
             return _modelFactory.CreateModel(modelPath, texturePath, modelFormat);
         }
 
-        public List<SceneObject> CreateScene(Light light)
+        public List<SceneObject> CreateScene()
         {
-            // Возвращаем пустую сцену
             return new List<SceneObject>();
         }
     }

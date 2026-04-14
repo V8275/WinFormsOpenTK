@@ -9,6 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Shaders\Frag\shader.frag" />
+    <None Remove="Shaders\Vert\
+		  " />
+  </ItemGroup>
+
+  <ItemGroup>
+	  <EmbeddedResource Include="Shaders\Frag\shader.frag" />
+	  <EmbeddedResource Include="Shaders\Vert\shader.vert" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="BulletSharp" Version="0.11.1" />
     <PackageReference Include="JeremyAnsel.Media.WavefrontObj" Version="3.0.58" />
     <PackageReference Include="Assimp" Version="3.0.0" />

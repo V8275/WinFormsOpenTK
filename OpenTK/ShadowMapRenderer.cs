@@ -32,7 +32,7 @@ namespace OpenTKProject
             _isInitialized = true;
         }
 
-        public void RenderShadowMap(List<SceneObject> sceneObjects, Light light)
+        public void RenderShadowMap(List<SceneObject> sceneObjects, LightModule light)
         {
             if (!_isInitialized)
                 Initialize();

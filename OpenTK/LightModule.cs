@@ -1,19 +1,18 @@
-using System.Drawing;
 using OpenTK.Mathematics;
 
 namespace OpenTKProject
 {
-    public class Light
+    public class LightModule : ObjectModule
     {
-        public Vector3 Position { get; set; }
+        public SceneObject ParentObject { get; set; }
         public Color Color { get; set; }
         public Vector3 Ambient { get; set; }
         public Vector3 Diffuse { get; set; }
         public Vector3 Specular { get; set; }
 
-        public Light(Vector3 position, Color color)
+        public LightModule(SceneObject parentObject, Color color)
         {
-            Position = position;
+            ParentObject = parentObject;
             Color = color;
             Ambient = new Vector3(0.2f, 0.2f, 0.2f);
             Diffuse = new Vector3(0.5f, 0.5f, 0.5f);
@@ -24,13 +23,23 @@ namespace OpenTKProject
         {
             Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(
                 -size, size, -size, size, nearPlane, farPlane);
-            Matrix4 lightView = Matrix4.LookAt(Position, Vector3.Zero, Vector3.UnitY);
+            Matrix4 lightView = Matrix4.LookAt(ParentObject.Position, Vector3.Zero, Vector3.UnitY);
             return lightView * lightProjection;
         }
 
         public Vector3 ColorToVec3()
         {
             return new Vector3(Color.R / 100f, Color.G / 100f, Color.B / 100f);
+        }
+
+        public override void Start()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Update(float time)
+        {
+            throw new NotImplementedException();
         }
     }
 }

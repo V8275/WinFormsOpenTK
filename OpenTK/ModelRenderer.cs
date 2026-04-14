@@ -12,7 +12,7 @@ namespace OpenTKProject
             _modelBuffers = new Dictionary<Model, (int, int, int)>();
         }
 
-        public void RenderModel(SceneObject sceneObj, CameraController camera, Light light, 
+        public void RenderModel(SceneObject sceneObj, CameraController camera, LightModule light, 
                                int shadowMapTexture, Vector2i windowSize)
         {
             EnsureBuffersExist(sceneObj.Model);
@@ -62,7 +62,7 @@ namespace OpenTKProject
             model.Shader.SetInt("shadowMap", 1);
         }
 
-        private void SetupLighting(Shader shader, CameraController camera, Light light)
+        private void SetupLighting(Shader shader, CameraController camera, LightModule light)
         {
             shader.SetVector3("viewPos", camera.Position);
             shader.SetVector3("material.ambient", light.ColorToVec3());
@@ -73,7 +73,7 @@ namespace OpenTKProject
             shader.SetVector3("light.ambient", light.Ambient);
             shader.SetVector3("light.diffuse", light.Diffuse);
             shader.SetVector3("light.specular", light.Specular);
-            shader.SetVector3("light.position", light.Position);
+            shader.SetVector3("light.position", light.ParentObject.Position);
         }
 
         private void EnsureBuffersExist(Model model)

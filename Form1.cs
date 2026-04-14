@@ -1,10 +1,8 @@
-using OpenTK.GLControl;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTKProject;
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
-using System.Windows.Forms;
 
 namespace WinFormsOpenTK
 {
@@ -17,7 +15,9 @@ namespace WinFormsOpenTK
         private System.Windows.Forms.Timer _renderTimer;
         private System.Windows.Forms.Timer _inputTimer;
 
-        private Light _light;
+        string vertShaderPath = "WinFormsOpenTK.Shaders.Vert.shader.vert";
+        string fragShaderPath = "WinFormsOpenTK.Shaders.Frag.shader.frag";
+
         private CameraController _cameraController;
         private Renderer _renderer;
         private SceneInitializer _sceneInitializer;
@@ -38,6 +38,8 @@ namespace WinFormsOpenTK
         private bool isPhysicsKinematic;
         private bool isCollide;
         private bool isMoveEnable;
+
+        private List<SceneObject> lightObject = new List<SceneObject>();
 
         public Form1()
         {
@@ -199,28 +201,8 @@ namespace WinFormsOpenTK
                         float.Parse(zScale.Text));
 
                 SceneObject newObj;
-                string objectTypeName;
 
-                if (ModelType.SelectedIndex == 1)
-                {
-                    newObj = new PathMover(model, position, Vector3.Zero, new Vector3(1f, 1f, 1f));
-
-                    Vector3[] pathPoints = new Vector3[]
-                    {
-                        new Vector3(position.X, position.Y, position.Z),
-                        new Vector3(position.X + 3, position.Y, position.Z),
-                        new Vector3(position.X + 3, position.Y, position.Z + 3),
-                        new Vector3(position.X, position.Y, position.Z + 3)
-                    };
-
-                    ((PathMover)newObj).SetPoints(pathPoints);
-                    objectTypeName = "Moving";
-                }
-                else
-                {
-                    newObj = new SceneObject(model, position, Vector3.Zero, scale);
-                    objectTypeName = "Static";
-                }
+                newObj = new SceneObject(model, position, Vector3.Zero, scale);
 
                 newObj.MakeModuleList(CreateModules(newObj));
 
@@ -228,12 +210,10 @@ namespace WinFormsOpenTK
                 _sceneObjects.Add(newObj);
 
                 string fileName = Path.GetFileNameWithoutExtension(_selectedModelPath);
-                listBox1.Items.Add($"[{objectTypeName}] {fileName} ({position.X:F1}, {position.Y:F1}, {position.Z:F1})");
+                listBox1.Items.Add($"{fileName} ({position.X:F1}, {position.Y:F1}, {position.Z:F1})");
 
                 DeleteModelsBtn.Enabled = true;
                 UpdateObjectsCount();
-
-                Console.WriteLine($"Object added: {objectTypeName} at position {position}");
             }
             catch (Exception ex)
             {
@@ -371,22 +351,17 @@ namespace WinFormsOpenTK
 
         private void InitializeScene()
         {
-            _light = new Light(new Vector3(-5f, 3.0f, 3.0f), Color.AntiqueWhite);
+            var light = new SceneObject(null, new Vector3(-5f, 3.0f, 3.0f));
+            var lightModule = new LightModule(light, Color.AntiqueWhite);
+            light.AddModule(lightModule);
+            lightObject.Add(light);
+
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
             _physicsWorld = new PhysicsWorld();
 
-            string vertShaderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shaders", "Vert", "shader.vert");
-            string fragShaderPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Shaders", "Frag", "shader.frag");
-
-            if (!File.Exists(vertShaderPath) || !File.Exists(fragShaderPath))
-            {
-                vertShaderPath = "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Vert\\shader.vert";//"D:\\Development\\OpenTKProject\\Shaders\\Vert\\shader.vert";//
-                fragShaderPath = "D:\\Projects\\VSProjects\\OpenTKProject\\Shaders\\Frag\\shader.frag";//"D:\\Development\\OpenTKProject\\Shaders\\Frag\\shader.frag";//
-            }
-
             var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath);
             _sceneInitializer = new SceneInitializer(modelFactory);
-            _renderer = new Renderer(_cameraController, _light);
+            _renderer = new Renderer(_cameraController, lightObject[0].GetModule<LightModule>());
 
             _sceneObjects = new List<SceneObject>();
         }
@@ -471,8 +446,8 @@ namespace WinFormsOpenTK
         {
             if (_isMouseCaptured)
             {
-                // e.Delta обычно равно 120 за один шаг колесика
-                float delta = e.Delta / 120.0f; // Ќормализуем до ±1
+                // e.Delta равно 120 за один шаг колесика
+                float delta = e.Delta / 120.0f;
                 _cameraController.Zoom(delta);
             }
         }

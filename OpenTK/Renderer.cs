@@ -8,9 +8,9 @@ namespace OpenTKProject
         private readonly CameraController _cameraController;
         private readonly ShadowMapRenderer _shadowMapRenderer;
         private readonly ModelRenderer _modelRenderer;
-        private readonly Light _light;
+        private readonly LightModule _light;
 
-        public Renderer(CameraController cameraController, Light light, int shadowMapSize = 2048)
+        public Renderer(CameraController cameraController, LightModule light, int shadowMapSize = 2048)
         {
             _cameraController = cameraController;
             _light = light;

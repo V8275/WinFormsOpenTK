@@ -59,7 +59,6 @@
             zCoord = new TextBox();
             label1 = new Label();
             LoadButton = new Button();
-            ModelType = new ComboBox();
             fPSCounter = new Label();
             LoadPreset = new Label();
             comboBox1 = new ComboBox();
@@ -96,7 +95,6 @@
             panel1.Controls.Add(panel3);
             panel1.Controls.Add(panel2);
             panel1.Controls.Add(LoadButton);
-            panel1.Controls.Add(ModelType);
             panel1.Controls.Add(fPSCounter);
             panel1.Controls.Add(LoadPreset);
             panel1.Controls.Add(comboBox1);
@@ -184,9 +182,9 @@
             panel4.Controls.Add(massText);
             panel4.Controls.Add(checkBox3);
             panel4.Controls.Add(checkBox1);
-            panel4.Location = new Point(16, 182);
+            panel4.Location = new Point(16, 155);
             panel4.Name = "panel4";
-            panel4.Size = new Size(364, 87);
+            panel4.Size = new Size(364, 114);
             panel4.TabIndex = 16;
             // 
             // checkBox4
@@ -254,7 +252,7 @@
             panel3.Controls.Add(label7);
             panel3.Controls.Add(zScale);
             panel3.Controls.Add(label8);
-            panel3.Location = new Point(201, 91);
+            panel3.Location = new Point(201, 64);
             panel3.Name = "panel3";
             panel3.Size = new Size(179, 85);
             panel3.TabIndex = 15;
@@ -344,7 +342,7 @@
             panel2.Controls.Add(label2);
             panel2.Controls.Add(zCoord);
             panel2.Controls.Add(label1);
-            panel2.Location = new Point(13, 91);
+            panel2.Location = new Point(13, 64);
             panel2.Name = "panel2";
             panel2.Size = new Size(182, 85);
             panel2.TabIndex = 14;
@@ -436,17 +434,6 @@
             LoadButton.UseVisualStyleBackColor = false;
             LoadButton.Click += BtnAddObject_Click;
             // 
-            // ModelType
-            // 
-            ModelType.FormattingEnabled = true;
-            ModelType.Items.AddRange(new object[] { "Static", "Move" });
-            ModelType.Location = new Point(13, 63);
-            ModelType.Margin = new Padding(3, 2, 3, 2);
-            ModelType.Name = "ModelType";
-            ModelType.Size = new Size(367, 23);
-            ModelType.TabIndex = 6;
-            ModelType.Text = "Type (Static default)";
-            // 
             // fPSCounter
             // 
             fPSCounter.AutoSize = true;
@@ -533,7 +520,6 @@
         private Label LoadPreset;
         private ComboBox comboBox1;
         private Label fPSCounter;
-        private ComboBox ModelType;
         private Button LoadButton;
         private Label label3;
         private Label label2;
