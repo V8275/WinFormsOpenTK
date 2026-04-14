@@ -15,10 +15,11 @@ struct Light {
 };
 
 uniform Material material;
-uniform Light light;
+uniform Light lights[10];
 uniform vec3 viewPos;
 uniform sampler2D texture0;
 uniform sampler2D shadowMap;
+uniform int lightsCount;
 
 in vec2 texCoord;
 in vec3 Normal;
@@ -48,7 +49,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
         {
             float pcfDepth = texture(shadowMap, projCoords.xy + vec2(x, y) * texelSize).r;
             shadow += currentDepth - bias > pcfDepth ? 1.0 : 0.0;        
-        }    
+        }
     }
     shadow /= 9.0;
     
@@ -59,20 +60,29 @@ void main()
 {
     vec4 textureColor = texture(texture0, texCoord);
     vec3 norm = normalize(Normal);
-    vec3 lightDir = normalize(light.position - FragPos);
     vec3 viewDir = normalize(viewPos - FragPos);
-    
-    float shadow = ShadowCalculation(FragPosLightSpace, norm, lightDir);
-    
-    vec3 ambient = light.ambient * material.ambient;
-    
-    float diff = max(dot(norm, lightDir), 0.0);
-    vec3 diffuse = light.diffuse * diff * material.diffuse;
-    
-    vec3 reflectDir = -reflect(lightDir, norm);
-    float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-    vec3 specular = light.specular * spec * material.specular;
-    
-    vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * textureColor.rgb;
-    outputColor = vec4(result, textureColor.a);
+
+    vec3 ambient = lights[0].ambient * material.ambient;
+
+    vec3 mainResult;
+
+    for(int i = 0; i < lightsCount; i++)
+    {
+        vec3 lightDir = normalize(lights[i].position - FragPos);
+
+        float shadow = ShadowCalculation(FragPosLightSpace, norm, lightDir);
+        float diff = max(dot(norm, lightDir), 0.0);
+
+        vec3 diffuse = lights[i].diffuse * diff * material.diffuse;
+        vec3 reflectDir = -reflect(lightDir, norm);
+
+        float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
+
+        vec3 specular = lights[i].specular * spec * material.specular;
+        vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * textureColor.rgb;
+
+        mainResult+=result;
+    }
+
+    outputColor = vec4(mainResult, textureColor.a);
 }

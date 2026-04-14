@@ -12,8 +12,8 @@ namespace OpenTKProject
             _modelBuffers = new Dictionary<Model, (int, int, int)>();
         }
 
-        public void RenderModel(SceneObject sceneObj, CameraController camera, LightModule light, 
-                               int shadowMapTexture, Vector2i windowSize)
+        public void RenderModel(SceneObject sceneObj, CameraController camera, LightManager lightManager,
+                       int shadowMapTexture, Vector2i windowSize)
         {
             EnsureBuffersExist(sceneObj.Model);
 
@@ -23,7 +23,7 @@ namespace OpenTKProject
                 (float)windowSize.X / (float)windowSize.Y, 0.1f, 100.0f);
 
             Matrix4 modelMatrix = sceneObj.GetModelMatrix();
-            Matrix4 lightSpaceMatrix = light.GetLightSpaceMatrix();
+            Matrix4 lightSpaceMatrix = GetMainLightSpaceMatrix(lightManager);
 
             sceneObj.Model.Shader.Use();
 
@@ -34,7 +34,7 @@ namespace OpenTKProject
             sceneObj.Model.Shader.SetMatrix4("projection", projection);
             sceneObj.Model.Shader.SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
-            SetupLighting(sceneObj.Model.Shader, camera, light);
+            SetupLighting(sceneObj.Model.Shader, camera, lightManager);
 
             var buffers = _modelBuffers[sceneObj.Model];
             GL.BindVertexArray(buffers.vao);
@@ -42,6 +42,14 @@ namespace OpenTKProject
                            DrawElementsType.UnsignedInt, 0);
 
             GL.BindVertexArray(0);
+        }
+
+        private Matrix4 GetMainLightSpaceMatrix(LightManager lightManager)
+        {
+            var lights = lightManager.GetLights();
+            if (lights.Count > 0)
+                return lights[0].GetLightSpaceMatrix();
+            return Matrix4.Identity;
         }
 
         private void SetupTextures(Model model, int shadowMapTexture)
@@ -58,18 +66,25 @@ namespace OpenTKProject
             model.Shader.SetInt("shadowMap", 1);
         }
 
-        private void SetupLighting(Shader shader, CameraController camera, LightModule light)
+        private void SetupLighting(Shader shader, CameraController camera, LightManager lightManager)
         {
             shader.SetVector3("viewPos", camera.Position);
-            shader.SetVector3("material.ambient", light.ColorToVec3());
+            shader.SetVector3("material.ambient", lightManager.GetLights()[0].ColorToVec3());
             shader.SetVector3("material.diffuse", new Vector3(1.0f, 0.5f, 0.31f));
             shader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
             shader.SetFloat("material.shininess", 32.0f);
 
-            shader.SetVector3("light.ambient", light.Ambient);
-            shader.SetVector3("light.diffuse", light.Diffuse);
-            shader.SetVector3("light.specular", light.Specular);
-            shader.SetVector3("light.position", light.ParentObject.Position);
+            var lights = lightManager.GetLights();
+            shader.SetInt("lightsCount", lights.Count);
+
+            for (int i = 0; i < lights.Count && i < 10; i++)
+            {
+                string prefix = $"lights[{i}].";
+                shader.SetVector3(prefix + "position", lights[i].ParentObject.Position);
+                shader.SetVector3(prefix + "ambient", lights[i].Ambient);
+                shader.SetVector3(prefix + "diffuse", lights[i].Diffuse);
+                shader.SetVector3(prefix + "specular", lights[i].Specular);
+            }
         }
 
         private void EnsureBuffersExist(Model model)

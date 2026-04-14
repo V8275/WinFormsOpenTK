@@ -1,40 +1,42 @@
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
+using OpenTKProject;
 
-namespace OpenTKProject
+public class Renderer
 {
-    public class Renderer
+    private readonly CameraController _cameraController;
+    private readonly ShadowMapRenderer _shadowMapRenderer;
+    private readonly ModelRenderer _modelRenderer;
+    private readonly LightManager _lightManager;
+
+    public Renderer(CameraController cameraController, LightManager lightManager, int shadowMapSize = 2048)
     {
-        private readonly CameraController _cameraController;
-        private readonly ShadowMapRenderer _shadowMapRenderer;
-        private readonly ModelRenderer _modelRenderer;
-        private readonly LightModule _light;
+        _cameraController = cameraController;
+        _lightManager = lightManager;
+        _shadowMapRenderer = new ShadowMapRenderer(shadowMapSize, shadowMapSize);
+        _modelRenderer = new ModelRenderer();
+    }
 
-        public Renderer(CameraController cameraController, LightModule light, int shadowMapSize = 2048)
+    public void Initialize()
+    {
+        _shadowMapRenderer.Initialize();
+    }
+
+    public void Render(List<SceneObject> sceneObjects, Vector2i windowSize)
+    {
+        var mainLight = _lightManager.GetLights().FirstOrDefault();
+        if (mainLight != null)
         {
-            _cameraController = cameraController;
-            _light = light;
-            _shadowMapRenderer = new ShadowMapRenderer(shadowMapSize, shadowMapSize);
-            _modelRenderer = new ModelRenderer();
+            _shadowMapRenderer.RenderShadowMap(sceneObjects, mainLight);
         }
 
-        public void Initialize()
+        GL.Viewport(0, 0, windowSize.X, windowSize.Y);
+        GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+        foreach (var obj in sceneObjects)
         {
-            _shadowMapRenderer.Initialize();
-        }
-
-        public void Render(List<SceneObject> sceneObjects, Vector2i windowSize)
-        {
-            _shadowMapRenderer.RenderShadowMap(sceneObjects, _light);
-
-            GL.Viewport(0, 0, windowSize.X, windowSize.Y);
-            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
-            foreach (var obj in sceneObjects)
-            {
-                _modelRenderer.RenderModel(obj, _cameraController, _light,
-                    _shadowMapRenderer.ShadowMapTexture, windowSize);
-            }
+            _modelRenderer.RenderModel(obj, _cameraController, _lightManager,
+                _shadowMapRenderer.ShadowMapTexture, windowSize);
         }
     }
 }
