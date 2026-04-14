@@ -43,7 +43,7 @@ namespace OpenTKProject
 
             _world.StepSimulation(deltaTime, 10, 1f / 60f);
 
-            // Обновляем позиции SceneObject из физического мира
+            // Обновление позиций физики
             foreach (var pair in _rigidBodies)
             {
                 if (pair.Value != null && pair.Value.MotionState != null)
@@ -51,14 +51,13 @@ namespace OpenTKProject
                     var motionState = (DefaultMotionState)pair.Value.MotionState;
                     var transform = motionState.WorldTransform;
 
-                    // Конвертируем BulletSharp матрицу в OpenTK позицию
+                    // BulletSharp матрицу в OpenTK позицию
                     var openTKPos = new OpenTKVector3(
                         transform.Origin.X,
                         transform.Origin.Y,
                         transform.Origin.Z
                     );
 
-                    // Обновляем позицию SceneObject
                     pair.Key.Position = openTKPos;
                 }
             }
@@ -71,25 +70,23 @@ namespace OpenTKProject
             if (_rigidBodies.ContainsKey(obj))
                 return _rigidBodies[obj];
 
-            // Создаем коллизионную форму на основе модели
+            // Коллизия на основе модели
             var collisionShape = CreateCollisionShape(obj);
 
-            // Вычисляем локальную инерцию
+            // Локальная инерцию
             BulletVector3 localInertia = BulletVector3.Zero;
             if (mass > 0)
                 collisionShape.CalculateLocalInertia(mass, out localInertia);
 
-            // Создаем трансформацию начальной позиции
             var startTransform = Matrix.Translation(
                 obj.Position.X,
                 obj.Position.Y,
                 obj.Position.Z
             );
 
-            // Создаем motion state
             var motionState = new DefaultMotionState(startTransform);
 
-            // Создаем rigid body
+            // Создание rigidbody
             var rbInfo = new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
             var body = new RigidBody(rbInfo);
 

@@ -1,5 +1,3 @@
-using OpenTK.Mathematics;
-
 namespace OpenTKProject
 {
     public class SceneInitializer

@@ -27,19 +27,15 @@ namespace OpenTKProject
 
             sceneObj.Model.Shader.Use();
 
-            // Setup textures
             SetupTextures(sceneObj.Model, shadowMapTexture);
 
-            // Setup matrices
             sceneObj.Model.Shader.SetMatrix4("model", modelMatrix);
             sceneObj.Model.Shader.SetMatrix4("view", view);
             sceneObj.Model.Shader.SetMatrix4("projection", projection);
             sceneObj.Model.Shader.SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
-            // Setup lighting
             SetupLighting(sceneObj.Model.Shader, camera, light);
 
-            // Draw
             var buffers = _modelBuffers[sceneObj.Model];
             GL.BindVertexArray(buffers.vao);
             GL.DrawElements(PrimitiveType.Triangles, sceneObj.Model.VModel.Indices.Count,

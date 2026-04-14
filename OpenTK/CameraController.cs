@@ -4,8 +4,8 @@ namespace OpenTKProject
 {
     public enum CameraMode
     {
-        Free,        // Свободный режим
-        Orbit        // Вращение вокруг объекта
+        Free,
+        Orbit
     }
 
     public class CameraController

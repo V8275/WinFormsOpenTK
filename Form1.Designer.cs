@@ -148,7 +148,7 @@
             checkBox7.TabIndex = 1;
             checkBox7.Text = "Use Movement";
             checkBox7.UseVisualStyleBackColor = true;
-            checkBox7.CheckedChanged += isMove;
+            checkBox7.CheckedChanged += isMove_Check;
             // 
             // button2
             // 
@@ -160,7 +160,7 @@
             button2.TabIndex = 18;
             button2.Text = "Unbind camera";
             button2.UseVisualStyleBackColor = false;
-            button2.Click += UnbindCam;
+            button2.Click += UnbindCam_Check;
             // 
             // button1
             // 
@@ -172,7 +172,7 @@
             button1.TabIndex = 17;
             button1.Text = "Bind Camera To Selected";
             button1.UseVisualStyleBackColor = false;
-            button1.Click += BindCamToSelect;
+            button1.Click += BindCamToSelect_Check;
             // 
             // panel4
             // 
@@ -196,7 +196,7 @@
             checkBox4.TabIndex = 16;
             checkBox4.Text = "Use Collisions";
             checkBox4.UseVisualStyleBackColor = true;
-            checkBox4.CheckedChanged += isCollision;
+            checkBox4.CheckedChanged += isCollision_Check;
             // 
             // label9
             // 
@@ -229,7 +229,7 @@
             checkBox3.TabIndex = 2;
             checkBox3.Text = "Is Kinematic";
             checkBox3.UseVisualStyleBackColor = true;
-            checkBox3.CheckedChanged += isObjectKinematic;
+            checkBox3.CheckedChanged += isObjectKinematic_Check;
             // 
             // checkBox1
             // 
@@ -240,7 +240,7 @@
             checkBox1.TabIndex = 0;
             checkBox1.Text = "Use Physics";
             checkBox1.UseVisualStyleBackColor = true;
-            checkBox1.CheckedChanged += isPhysicsAdded;
+            checkBox1.CheckedChanged += isPhysicsAdded_Check;
             // 
             // panel3
             // 

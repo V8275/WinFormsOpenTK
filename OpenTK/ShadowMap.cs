@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using OpenTK.Graphics.OpenGL;
-using OpenTK.Mathematics;
+﻿using OpenTK.Graphics.OpenGL;
 
 namespace OpenTKProject
 {
@@ -21,9 +15,6 @@ namespace OpenTKProject
         {
             ShadowWidth = width;
             ShadowHeight = height;
-
-            // Не инициализируем OpenGL ресурсы в конструкторе
-            // Они будут созданы при первом использовании
         }
 
         public void Initialize()
@@ -31,10 +22,8 @@ namespace OpenTKProject
             if (_isInitialized)
                 return;
 
-            // Создаем FBO для depth map
             DepthMapFBO = GL.GenFramebuffer();
 
-            // Создаем текстуру глубины
             DepthMapTexture = GL.GenTexture();
             GL.BindTexture(TextureTarget.Texture2D, DepthMapTexture);
             GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.DepthComponent24,
@@ -45,20 +34,16 @@ namespace OpenTKProject
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToBorder);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToBorder);
 
-            // Устанавливаем цвет границы для теней за пределами фрустума
             float[] borderColor = { 1.0f, 1.0f, 1.0f, 1.0f };
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBorderColor, borderColor);
 
-            // Прикрепляем текстуру глубины к FBO
             GL.BindFramebuffer(FramebufferTarget.Framebuffer, DepthMapFBO);
             GL.FramebufferTexture2D(FramebufferTarget.Framebuffer, FramebufferAttachment.DepthAttachment,
                                     TextureTarget.Texture2D, DepthMapTexture, 0);
 
-            // Не используем буфер цвета
             GL.DrawBuffer(DrawBufferMode.None);
             GL.ReadBuffer(ReadBufferMode.None);
 
-            // Проверяем статус FBO
             if (GL.CheckFramebufferStatus(FramebufferTarget.Framebuffer) != FramebufferErrorCode.FramebufferComplete)
             {
                 throw new Exception("Framebuffer is not complete!");

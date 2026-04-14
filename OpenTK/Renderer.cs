@@ -20,16 +20,13 @@ namespace OpenTKProject
 
         public void Initialize()
         {
-            // Инициализируем все OpenGL ресурсы после создания контекста
             _shadowMapRenderer.Initialize();
         }
 
         public void Render(List<SceneObject> sceneObjects, Vector2i windowSize)
         {
-            // Render shadow map first
             _shadowMapRenderer.RenderShadowMap(sceneObjects, _light);
 
-            // Render main scene
             GL.Viewport(0, 0, windowSize.X, windowSize.Y);
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 

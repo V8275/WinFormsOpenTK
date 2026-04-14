@@ -71,7 +71,7 @@ namespace OpenTKProject
 
         public override void Update(float time)
         {
-            // Обновление уже происходит в PhysicsWorld.Update
+            // Обновление в PhysicsWorld.Update
         }
 
         public void ApplyForce(Vector3 force)
@@ -171,7 +171,6 @@ namespace OpenTKProject
             switch (mode)
             {
                 case MovementMode.Force:
-                    // Для режима силы применяем силу трения
                     float dampingForce = damping * Mass;
                     float dampingSpeed = damping * deltaTime / Mass;
 
@@ -188,7 +187,6 @@ namespace OpenTKProject
 
                 case MovementMode.Impulse:
                 case MovementMode.Velocity:
-                    // Для импульса и скорости просто уменьшаем скорость
                     float newSpeed = Math.Max(0, horizontalSpeed - damping * deltaTime);
                     if (newSpeed > 0)
                     {
@@ -227,11 +225,11 @@ namespace OpenTKProject
         }
     }
 
-    // Режимы движения (вынесено в отдельный enum для использования в обоих модулях)
+    // Режимы движения
     public enum MovementMode
     {
         Direct,        // Прямое изменение позиции
-        Force,         // Через силу (физика)
+        Force,         // Через физику
         Impulse,       // Через импульс
         Velocity       // Через прямую установку скорости
     }

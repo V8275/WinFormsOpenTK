@@ -19,10 +19,9 @@ namespace OpenTKProject
         private bool _usePhysics = true;
         private MovementMode _movementMode = MovementMode.Velocity;
 
-        // Параметры поворота
         private bool _rotateToMovement = true;
         private float _rotationSpeed = 5.0f;
-        private Vector3 _lastMovementDirection = -Vector3.UnitZ; // По умолчанию смотрим вперед
+        private Vector3 _lastMovementDirection = -Vector3.UnitZ;
         private float _targetRotationY = 0;
         private bool _smoothRotation = true;
 
@@ -70,7 +69,6 @@ namespace OpenTKProject
 
         public bool IsGrounded => _physics?.IsGrounded ?? false;
 
-        // Свойства для поворота
         public bool RotateToMovement
         {
             get => _rotateToMovement;
@@ -113,11 +111,9 @@ namespace OpenTKProject
                 }
                 else
                 {
-                    // Применяем затухание когда нет ввода
                     _physics.ApplyHorizontalDamping(_damping, time, _movementMode);
                 }
 
-                // Обновляем поворот модели
                 UpdateRotation(time);
             }
         }

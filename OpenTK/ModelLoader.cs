@@ -36,6 +36,7 @@ namespace OpenTKProject
             }
         }
 
+
         private void LoadObjModel()
         {
             var model = ObjFile.FromFile(path);
