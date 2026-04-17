@@ -9,7 +9,7 @@ namespace OpenTKProject
             _modelFactory = modelFactory;
         }
 
-        public Model CreateModel(string modelPath, string texturePath, ModelFormat modelFormat)
+        public Model CreateModel(string modelPath, ModelTextures texturePath, ModelFormat modelFormat)
         {
             return _modelFactory.CreateModel(modelPath, texturePath, modelFormat);
         }

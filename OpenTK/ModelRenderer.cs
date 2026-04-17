@@ -64,6 +64,25 @@ namespace OpenTKProject
             GL.ActiveTexture(TextureUnit.Texture1);
             GL.BindTexture(TextureTarget.Texture2D, shadowMapTexture);
             model.Shader.SetInt("shadowMap", 1);
+
+            if (model.NormalMap != null)
+            {
+                GL.ActiveTexture(TextureUnit.Texture2);
+                GL.BindTexture(TextureTarget.Texture2D, model.NormalMap.Handle);
+                model.Shader.SetInt("normalMap", 2);
+                model.Shader.SetInt("hasNormalMap", 1);
+            }
+            else
+            {
+                model.Shader.SetInt("hasNormalMap", 0);
+            }
+
+            if (model.Metallic != null)
+            {
+                GL.ActiveTexture(TextureUnit.Texture3);
+                GL.BindTexture(TextureTarget.Texture2D, model.Metallic.Handle);
+                model.Shader.SetInt("metallicMap", 3);
+            }
         }
 
         private void SetupLighting(Shader shader, CameraController camera, LightManager lightManager)
@@ -111,25 +130,33 @@ namespace OpenTKProject
 
         private void SetupModelData(Model model, int vbo, int ebo)
         {
-            int stride = 8;
+            int stride = 11;
             int uvOffset = 3 * sizeof(float);
             int normalOffset = 5 * sizeof(float);
+            int tangentOffset = 8 * sizeof(float);
             int strideSize = stride * sizeof(float);
 
-            GL.BufferData(BufferTarget.ArrayBuffer, model.VModel.Vertices.Count() * sizeof(float),
+            GL.BufferData(BufferTarget.ArrayBuffer, model.VModel.Vertices.Count * sizeof(float),
                           model.VModel.Vertices.ToArray(), BufferUsageHint.StaticDraw);
 
-            GL.BufferData(BufferTarget.ElementArrayBuffer, model.VModel.Indices.Count() * sizeof(uint),
+            GL.BufferData(BufferTarget.ElementArrayBuffer, model.VModel.Indices.Count * sizeof(uint),
                           model.VModel.Indices.ToArray(), BufferUsageHint.StaticDraw);
 
+            // позиция
             GL.EnableVertexAttribArray(0);
             GL.VertexAttribPointer(0, 3, VertexAttribPointerType.Float, false, strideSize, 0);
 
+            // UV координаты
             GL.EnableVertexAttribArray(1);
             GL.VertexAttribPointer(1, 2, VertexAttribPointerType.Float, false, strideSize, uvOffset);
 
+            // нормали
             GL.EnableVertexAttribArray(2);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, strideSize, normalOffset);
+
+            // касательные
+            GL.EnableVertexAttribArray(3);
+            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, strideSize, tangentOffset);
         }
 
         public void Dispose()

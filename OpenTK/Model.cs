@@ -4,10 +4,14 @@
     {
         VisualModel vModel;
         Texture texture;
+        Texture normalMap;
+        Texture metallic;
         Shader shader;
 
         public VisualModel VModel { get { return vModel; } }
         public Texture Texture { get { return texture; } }
+        public Texture NormalMap { get { return normalMap; } }
+        public Texture Metallic { get { return metallic; } }
         public Shader Shader { get { return shader; } }
 
         public Model() { }
@@ -30,14 +34,25 @@
         {
             vModel = new VisualModel(path, modelFormat);
         }
+
         public void SetTexture(string path)
         {
             texture = new Texture(path);
         }
+
+        public void SetNormalMap(string path)
+        {
+            normalMap = new Texture(path);
+        }
+
+        public void SetMetallic(string path)
+        {
+            metallic = new Texture(path);
+        }
+
         public void SetShader(string vertPath, string fragPath)
         {
             shader = new Shader(vertPath, fragPath);
         }
-
     }
 }

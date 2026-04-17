@@ -40,11 +40,13 @@ namespace WinFormsOpenTK
                 while (reader.Read())
                 {
                     DbModel dbModel = new DbModel();
-                    (string?, string?, string?, string?) dataForModel =
+                    (string?, string?, string?, string?, string?, string?) dataForModel =
                     (reader["name"].ToString(),
                         reader["model"].ToString(),
                         reader["texture"].ToString(),
-                        reader["format"].ToString());
+                        reader["format"].ToString(),
+                        reader["normal"].ToString(),
+                        reader["metallic"].ToString());
 
                     if (String.IsNullOrEmpty(dataForModel.Item1) ||
                         String.IsNullOrEmpty(dataForModel.Item2) ||

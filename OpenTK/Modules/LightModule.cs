@@ -19,12 +19,12 @@ namespace OpenTKProject
             Specular = new Vector3(1.0f, 1.0f, 1.0f);
         }
 
-        public Matrix4 GetLightSpaceMatrix(float size = 10.0f, float nearPlane = 1.0f, float farPlane = 10.0f)
+        public Matrix4 GetLightSpaceMatrix(float size = 10.0f, float nearPlane = 1.0f, float farPlane = 50.0f)
         {
             Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(
                 -size, size, -size, size, nearPlane, farPlane);
             Matrix4 lightView = Matrix4.LookAt(ParentObject.Position, Vector3.Zero, Vector3.UnitY);
-            return lightView * lightProjection;
+            return lightProjection * lightView;
         }
 
         public Vector3 ColorToVec3()

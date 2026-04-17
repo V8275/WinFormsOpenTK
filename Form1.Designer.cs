@@ -73,6 +73,7 @@
             // 
             // _glControl
             // 
+            _glControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
             _glControl.API = OpenTK.Windowing.Common.ContextAPI.OpenGL;
             _glControl.APIVersion = new Version(3, 3, 0, 0);
             _glControl.Flags = OpenTK.Windowing.Common.ContextFlags.Default;
@@ -87,6 +88,7 @@
             // 
             // panel1
             // 
+            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
             panel1.BackColor = SystemColors.ControlDark;
             panel1.Controls.Add(panel5);
             panel1.Controls.Add(button2);

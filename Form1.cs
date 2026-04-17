@@ -32,7 +32,7 @@ namespace WinFormsOpenTK
         private DataLoader dataLoader;
 
         private string _selectedModelPath = "";
-        private string _selectedTexturePath = "";
+        private ModelTextures _selectedTexturePath;
         private string _selectedModelFormat;
         private bool isPhysicsEnabled;
         private bool isPhysicsKinematic;
@@ -67,42 +67,18 @@ namespace WinFormsOpenTK
         {
             var _lightManager = new LightManager();
 
-            // Создаем первый источник света (как был раньше)
-            var lightObject1 = new SceneObject(null, new Vector3(-5f, 3.0f, 3.0f));
+            var lightObject1 = new SceneObject(null, new Vector3(2, 2, 2));
             var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.AntiqueWhite);
             lightObject1.AddModule(lightModule1);
             lightObject.Add(lightObject1);
             _lightManager.AddLight(lightModule1);
 
-            // Добавляем второй источник света (например, с другой стороны)
-            var lightObject2 = new SceneObject(null, new Vector3(5f, 2.0f, -3f));
-            var lightModule2 = ModuleInitializer.AddLightModule(lightObject2, Color.LightBlue);
-            lightModule2.Ambient = new Vector3(0.15f, 0.15f, 0.2f);
-            lightModule2.Diffuse = new Vector3(0.6f, 0.6f, 0.8f);
-            lightModule2.Specular = new Vector3(0.8f, 0.8f, 1.0f);
-            lightObject2.AddModule(lightModule2);
-            lightObject.Add(lightObject2);
-            _lightManager.AddLight(lightModule2);
-
-            // Добавляем третий источник света (сверху)
-            var lightObject3 = new SceneObject(null, new Vector3(0f, 8.0f, 0f));
-            var lightModule3 = ModuleInitializer.AddLightModule(lightObject3, Color.LightYellow);
-            lightModule3.Ambient = new Vector3(0.1f, 0.1f, 0.05f);
-            lightModule3.Diffuse = new Vector3(0.5f, 0.5f, 0.3f);
-            lightModule3.Specular = new Vector3(0.6f, 0.6f, 0.4f);
-            lightObject3.AddModule(lightModule3);
-            lightObject.Add(lightObject3);
-            _lightManager.AddLight(lightModule3);
-
-            // Инициализируем камеру и физику
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
             _physicsWorld = new PhysicsWorld();
 
-            // Создаем фабрику моделей и инициализатор сцены
             var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath);
             _sceneInitializer = new SceneInitializer(modelFactory);
 
-            // Создаем рендерер с LightManager
             _renderer = new Renderer(_cameraController, _lightManager);
 
             _sceneObjects = new List<SceneObject>();
@@ -247,7 +223,9 @@ namespace WinFormsOpenTK
                     if (data[i].PresetName == comboBox1.SelectedItem.ToString())
                     {
                         _selectedModelPath = data[i].ModelPath;
-                        _selectedTexturePath = data[i].TexturePath;
+                        _selectedTexturePath.TexturePath = data[i].TexturePath;
+                        _selectedTexturePath.NormalMapPath = data[i].NormalMapPath;
+                        _selectedTexturePath.MetallicMapPath = data[i].MetallicMapPath;
                         _selectedModelFormat = data[i].ModelFormat;
                     }
                 }

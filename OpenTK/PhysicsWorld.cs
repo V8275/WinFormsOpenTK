@@ -43,7 +43,6 @@ namespace OpenTKProject
 
             _world.StepSimulation(deltaTime, 10, 1f / 60f);
 
-            // Обновление позиций физики
             foreach (var pair in _rigidBodies)
             {
                 if (pair.Value != null && pair.Value.MotionState != null)
@@ -51,7 +50,6 @@ namespace OpenTKProject
                     var motionState = (DefaultMotionState)pair.Value.MotionState;
                     var transform = motionState.WorldTransform;
 
-                    // BulletSharp матрицу в OpenTK позицию
                     var openTKPos = new OpenTKVector3(
                         transform.Origin.X,
                         transform.Origin.Y,
@@ -70,10 +68,8 @@ namespace OpenTKProject
             if (_rigidBodies.ContainsKey(obj))
                 return _rigidBodies[obj];
 
-            // Коллизия на основе модели
             var collisionShape = CreateCollisionShape(obj);
 
-            // Локальная инерцию
             BulletVector3 localInertia = BulletVector3.Zero;
             if (mass > 0)
                 collisionShape.CalculateLocalInertia(mass, out localInertia);
@@ -86,7 +82,6 @@ namespace OpenTKProject
 
             var motionState = new DefaultMotionState(startTransform);
 
-            // Создание rigidbody
             var rbInfo = new RigidBodyConstructionInfo(mass, motionState, collisionShape, localInertia);
             var body = new RigidBody(rbInfo);
 
@@ -123,7 +118,10 @@ namespace OpenTKProject
             float minZ = float.MaxValue, maxZ = float.MinValue;
 
             var vertices = model.VModel.Vertices;
-            for (int i = 0; i < vertices.Count; i += 8)
+            // 3 позиция + 2 UV + 3 нормаль + 3 тангент
+            int stride = 11;
+
+            for (int i = 0; i < vertices.Count; i += stride)
             {
                 if (i + 2 >= vertices.Count) break;
 
