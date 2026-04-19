@@ -30,6 +30,7 @@
         {
             _glControl = new OpenTK.GLControl.GLControl();
             panel1 = new Panel();
+            LightIntense = new NumericUpDown();
             panel5 = new Panel();
             label10 = new Label();
             speedBox = new TextBox();
@@ -64,32 +65,36 @@
             comboBox1 = new ComboBox();
             DeleteModelsBtn = new Button();
             listBox1 = new ListBox();
+            tableLayoutPanel1 = new TableLayoutPanel();
             panel1.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)LightIntense).BeginInit();
             panel5.SuspendLayout();
             panel4.SuspendLayout();
             panel3.SuspendLayout();
             panel2.SuspendLayout();
+            tableLayoutPanel1.SuspendLayout();
             SuspendLayout();
             // 
             // _glControl
             // 
-            _glControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left;
+            _glControl.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             _glControl.API = OpenTK.Windowing.Common.ContextAPI.OpenGL;
             _glControl.APIVersion = new Version(3, 3, 0, 0);
             _glControl.Flags = OpenTK.Windowing.Common.ContextFlags.Default;
             _glControl.IsEventDriven = true;
-            _glControl.Location = new Point(10, 9);
+            _glControl.Location = new Point(3, 2);
             _glControl.Margin = new Padding(3, 2, 3, 2);
             _glControl.Name = "_glControl";
             _glControl.Profile = OpenTK.Windowing.Common.ContextProfile.Core;
             _glControl.SharedContext = null;
-            _glControl.Size = new Size(931, 782);
+            _glControl.Size = new Size(917, 777);
             _glControl.TabIndex = 0;
             // 
             // panel1
             // 
-            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            panel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             panel1.BackColor = SystemColors.ControlDark;
+            panel1.Controls.Add(LightIntense);
             panel1.Controls.Add(panel5);
             panel1.Controls.Add(button2);
             panel1.Controls.Add(button1);
@@ -102,14 +107,27 @@
             panel1.Controls.Add(comboBox1);
             panel1.Controls.Add(DeleteModelsBtn);
             panel1.Controls.Add(listBox1);
-            panel1.Location = new Point(947, 11);
+            panel1.Location = new Point(926, 2);
             panel1.Margin = new Padding(3, 2, 3, 2);
             panel1.Name = "panel1";
-            panel1.Size = new Size(395, 780);
+            panel1.Size = new Size(394, 777);
             panel1.TabIndex = 1;
+            // 
+            // LightIntense
+            // 
+            LightIntense.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            LightIntense.DecimalPlaces = 2;
+            LightIntense.Increment = new decimal(new int[] { 5, 0, 0, 131072 });
+            LightIntense.Location = new Point(18, 688);
+            LightIntense.Name = "LightIntense";
+            LightIntense.Size = new Size(120, 23);
+            LightIntense.TabIndex = 19;
+            LightIntense.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            LightIntense.ValueChanged += LightIntense_ValueChanged;
             // 
             // panel5
             // 
+            panel5.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             panel5.BackColor = SystemColors.ControlDarkDark;
             panel5.Controls.Add(label10);
             panel5.Controls.Add(speedBox);
@@ -154,8 +172,9 @@
             // 
             // button2
             // 
+            button2.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
             button2.BackColor = Color.Red;
-            button2.Location = new Point(218, 680);
+            button2.Location = new Point(218, 632);
             button2.Margin = new Padding(3, 2, 3, 2);
             button2.Name = "button2";
             button2.Size = new Size(162, 39);
@@ -166,8 +185,9 @@
             // 
             // button1
             // 
+            button1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
             button1.BackColor = Color.Yellow;
-            button1.Location = new Point(18, 680);
+            button1.Location = new Point(18, 632);
             button1.Margin = new Padding(3, 2, 3, 2);
             button1.Name = "button1";
             button1.Size = new Size(163, 39);
@@ -178,6 +198,7 @@
             // 
             // panel4
             // 
+            panel4.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             panel4.BackColor = SystemColors.ControlDarkDark;
             panel4.Controls.Add(checkBox4);
             panel4.Controls.Add(label9);
@@ -426,6 +447,7 @@
             // 
             // LoadButton
             // 
+            LoadButton.Anchor = AnchorStyles.Left | AnchorStyles.Right;
             LoadButton.BackColor = Color.YellowGreen;
             LoadButton.Location = new Point(17, 372);
             LoadButton.Margin = new Padding(3, 2, 3, 2);
@@ -438,9 +460,10 @@
             // 
             // fPSCounter
             // 
+            fPSCounter.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             fPSCounter.AutoSize = true;
             fPSCounter.Font = new Font("Segoe UI", 20F);
-            fPSCounter.Location = new Point(149, 721);
+            fPSCounter.Location = new Point(149, 724);
             fPSCounter.Name = "fPSCounter";
             fPSCounter.Size = new Size(94, 37);
             fPSCounter.TabIndex = 5;
@@ -458,6 +481,7 @@
             // 
             // comboBox1
             // 
+            comboBox1.Anchor = AnchorStyles.Top | AnchorStyles.Left | AnchorStyles.Right;
             comboBox1.FormattingEnabled = true;
             comboBox1.Location = new Point(13, 36);
             comboBox1.Margin = new Padding(3, 2, 3, 2);
@@ -469,8 +493,9 @@
             // 
             // DeleteModelsBtn
             // 
+            DeleteModelsBtn.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             DeleteModelsBtn.BackColor = Color.Tomato;
-            DeleteModelsBtn.Location = new Point(18, 620);
+            DeleteModelsBtn.Location = new Point(18, 572);
             DeleteModelsBtn.Margin = new Padding(3, 2, 3, 2);
             DeleteModelsBtn.Name = "DeleteModelsBtn";
             DeleteModelsBtn.Size = new Size(362, 56);
@@ -481,12 +506,28 @@
             // 
             // listBox1
             // 
+            listBox1.Anchor = AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             listBox1.FormattingEnabled = true;
-            listBox1.Location = new Point(17, 447);
+            listBox1.Location = new Point(17, 429);
             listBox1.Margin = new Padding(3, 2, 3, 2);
             listBox1.Name = "listBox1";
-            listBox1.Size = new Size(363, 169);
+            listBox1.Size = new Size(363, 139);
             listBox1.TabIndex = 1;
+            // 
+            // tableLayoutPanel1
+            // 
+            tableLayoutPanel1.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
+            tableLayoutPanel1.ColumnCount = 2;
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 69.765686F));
+            tableLayoutPanel1.ColumnStyles.Add(new ColumnStyle(SizeType.Percent, 30.2343159F));
+            tableLayoutPanel1.Controls.Add(panel1, 1, 0);
+            tableLayoutPanel1.Controls.Add(_glControl, 0, 0);
+            tableLayoutPanel1.Location = new Point(10, 9);
+            tableLayoutPanel1.Name = "tableLayoutPanel1";
+            tableLayoutPanel1.RowCount = 1;
+            tableLayoutPanel1.RowStyles.Add(new RowStyle(SizeType.Percent, 100F));
+            tableLayoutPanel1.Size = new Size(1323, 781);
+            tableLayoutPanel1.TabIndex = 2;
             // 
             // Form1
             // 
@@ -494,14 +535,15 @@
             AutoScaleMode = AutoScaleMode.Font;
             BackColor = SystemColors.ControlDarkDark;
             ClientSize = new Size(1345, 802);
-            Controls.Add(panel1);
-            Controls.Add(_glControl);
+            Controls.Add(tableLayoutPanel1);
             Margin = new Padding(3, 2, 3, 2);
             Name = "Form1";
-            Text = "Form1";
+            Text = "OTK 3D";
+            WindowState = FormWindowState.Maximized;
             FormClosing += MainForm_FormClosing;
             panel1.ResumeLayout(false);
             panel1.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)LightIntense).EndInit();
             panel5.ResumeLayout(false);
             panel5.PerformLayout();
             panel4.ResumeLayout(false);
@@ -510,6 +552,7 @@
             panel3.PerformLayout();
             panel2.ResumeLayout(false);
             panel2.PerformLayout();
+            tableLayoutPanel1.ResumeLayout(false);
             ResumeLayout(false);
         }
 
@@ -551,5 +594,7 @@
         private Label label10;
         private TextBox speedBox;
         private CheckBox checkBox7;
+        private NumericUpDown LightIntense;
+        private TableLayoutPanel tableLayoutPanel1;
     }
 }

@@ -10,13 +10,30 @@ namespace OpenTKProject
         public Vector3 Diffuse { get; set; }
         public Vector3 Specular { get; set; }
 
-        public LightModule(SceneObject parentObject, Color color)
+        public float Intensity { get; set; }
+
+        public LightModule(SceneObject parentObject, Color color, float intensity = 1.0f)
         {
             ParentObject = parentObject;
             Color = color;
-            Ambient = new Vector3(0.2f, 0.2f, 0.2f);
-            Diffuse = new Vector3(0.5f, 0.5f, 0.5f);
-            Specular = new Vector3(1.0f, 1.0f, 1.0f);
+            Intensity = intensity;
+
+            Ambient = new Vector3(0.5f, 0.5f, 0.5f) * intensity;
+            Diffuse = new Vector3(10.0f, 10.0f, 10.0f) * intensity;
+            Specular = new Vector3(5.0f, 5.0f, 5.0f) * intensity;
+        }
+
+        public void SetIntensity(float intensity)
+        {
+            Intensity = intensity;
+
+            float baseAmbient = 0.5f;
+            float baseDiffuse = 10.0f;
+            float baseSpecular = 5.0f;
+
+            Ambient = new Vector3(baseAmbient, baseAmbient, baseAmbient) * intensity;
+            Diffuse = new Vector3(baseDiffuse, baseDiffuse, baseDiffuse) * intensity;
+            Specular = new Vector3(baseSpecular, baseSpecular, baseSpecular) * intensity;
         }
 
         public Matrix4 GetLightSpaceMatrix(float size = 10.0f, float nearPlane = 1.0f, float farPlane = 50.0f)
@@ -34,12 +51,10 @@ namespace OpenTKProject
 
         public override void Start()
         {
-            throw new NotImplementedException();
         }
 
         public override void Update(float time)
         {
-            throw new NotImplementedException();
         }
     }
 }

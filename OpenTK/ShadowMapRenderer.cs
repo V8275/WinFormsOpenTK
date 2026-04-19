@@ -84,9 +84,10 @@ namespace OpenTKProject
 
         private void SetupModelData(Model model, int vbo, int ebo)
         {
-            int stride = 8;
+            int stride = 11;
             int uvOffset = 3 * sizeof(float);
             int normalOffset = 5 * sizeof(float);
+            int tangentOffset = 8 * sizeof(float);
             int strideSize = stride * sizeof(float);
 
             GL.BufferData(BufferTarget.ArrayBuffer, model.VModel.Vertices.Count() * sizeof(float),
@@ -103,6 +104,9 @@ namespace OpenTKProject
 
             GL.EnableVertexAttribArray(2);
             GL.VertexAttribPointer(2, 3, VertexAttribPointerType.Float, false, strideSize, normalOffset);
+
+            GL.EnableVertexAttribArray(3);
+            GL.VertexAttribPointer(3, 3, VertexAttribPointerType.Float, false, strideSize, tangentOffset);
         }
 
         public void Dispose()

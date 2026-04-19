@@ -20,11 +20,15 @@ out vec3 Bitangent;
 void main(void)
 {
     texCoord = aTexCoord;
-    Normal = aNormal;
-    FragPos = vec3(model * vec4(aPosition, 1.0));
-    FragPosLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
-    Tangent = aTangent;
-    vec3 bitangent = cross(aNormal, aTangent);
-    Bitangent = bitangent;
-    gl_Position = projection * view * model * vec4(aPosition, 1.0);
+    
+    mat3 normalMatrix = mat3(transpose(inverse(model)));
+    Normal = normalize(normalMatrix * aNormal);
+    Tangent = normalize(normalMatrix * aTangent);
+    Bitangent = cross(Normal, Tangent);
+    
+    vec4 worldPosition = model * vec4(aPosition, 1.0);
+    FragPos = worldPosition.xyz;
+    FragPosLightSpace = lightSpaceMatrix * worldPosition;
+    
+    gl_Position = projection * view * worldPosition;
 }

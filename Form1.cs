@@ -1,5 +1,6 @@
 using System.Runtime.InteropServices;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using OpenTKProject;
@@ -69,6 +70,7 @@ namespace WinFormsOpenTK
 
             var lightObject1 = new SceneObject(null, new Vector3(2, 2, 2));
             var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.AntiqueWhite);
+            lightModule1.Intensity = 1.5f;
             lightObject1.AddModule(lightModule1);
             lightObject.Add(lightObject1);
             _lightManager.AddLight(lightModule1);
@@ -226,6 +228,7 @@ namespace WinFormsOpenTK
                         _selectedTexturePath.TexturePath = data[i].TexturePath;
                         _selectedTexturePath.NormalMapPath = data[i].NormalMapPath;
                         _selectedTexturePath.MetallicMapPath = data[i].MetallicMapPath;
+                        _selectedTexturePath.RoughnessMapPath = data[i].RoughnessMapPath;
                         _selectedModelFormat = data[i].ModelFormat;
                     }
                 }
@@ -514,6 +517,20 @@ namespace WinFormsOpenTK
 
             if (!reg.IsMatch(newText))
                 e.Handled = true;
+        }
+
+        private void LightIntense_ValueChanged(object sender, EventArgs e)
+        {
+            foreach (var obj in lightObject)
+            {
+                var moduleLight = obj.Modules.Where(a => a is LightModule).First() as LightModule;
+                if (moduleLight != null)
+                moduleLight.SetIntensity((float)LightIntense.Value);
+                else
+                {
+                    MessageBox.Show("No light");
+                }
+            }
         }
     }
 }

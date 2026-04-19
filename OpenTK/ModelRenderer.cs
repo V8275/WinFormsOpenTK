@@ -34,7 +34,7 @@ namespace OpenTKProject
             sceneObj.Model.Shader.SetMatrix4("projection", projection);
             sceneObj.Model.Shader.SetMatrix4("lightSpaceMatrix", lightSpaceMatrix);
 
-            SetupLighting(sceneObj.Model.Shader, camera, lightManager);
+            SetupLighting(sceneObj.Model, camera, lightManager);
 
             var buffers = _modelBuffers[sceneObj.Model];
             GL.BindVertexArray(buffers.vao);
@@ -83,15 +83,29 @@ namespace OpenTKProject
                 GL.BindTexture(TextureTarget.Texture2D, model.Metallic.Handle);
                 model.Shader.SetInt("metallicMap", 3);
             }
+
+            if (model.Roughness != null)
+            {
+                GL.ActiveTexture(TextureUnit.Texture4);
+                GL.BindTexture(TextureTarget.Texture2D, model.Roughness.Handle);
+                model.Shader.SetInt("roughnessMap", 4);
+            }
         }
 
-        private void SetupLighting(Shader shader, CameraController camera, LightManager lightManager)
+        private void SetupLighting(Model model, CameraController camera, LightManager lightManager)
         {
+            var shader = model.Shader;
+
             shader.SetVector3("viewPos", camera.Position);
             shader.SetVector3("material.ambient", lightManager.GetLights()[0].ColorToVec3());
             shader.SetVector3("material.diffuse", new Vector3(1.0f, 0.5f, 0.31f));
             shader.SetVector3("material.specular", new Vector3(0.5f, 0.5f, 0.5f));
             shader.SetFloat("material.shininess", 32.0f);
+            shader.SetFloat("material.metallic", 0.5f);
+            shader.SetFloat("material.roughness", 0.5f);
+            shader.SetFloat("material.ao", 1.0f); 
+            shader.SetInt("hasMetallicMap", model.Metallic != null ? 1 : 0);
+            shader.SetInt("hasRoughnessMap", model.Roughness != null ? 1 : 0);
 
             var lights = lightManager.GetLights();
             shader.SetInt("lightsCount", lights.Count);
@@ -100,9 +114,9 @@ namespace OpenTKProject
             {
                 string prefix = $"lights[{i}].";
                 shader.SetVector3(prefix + "position", lights[i].ParentObject.Position);
-                shader.SetVector3(prefix + "ambient", lights[i].Ambient);
-                shader.SetVector3(prefix + "diffuse", lights[i].Diffuse);
-                shader.SetVector3(prefix + "specular", lights[i].Specular);
+                shader.SetVector3(prefix + "ambient", lights[i].Ambient * 2.0f);  // Увеличиваем
+                shader.SetVector3(prefix + "diffuse", lights[i].Diffuse * 3.0f);  // Увеличиваем
+                shader.SetVector3(prefix + "specular", lights[i].Specular * 2.0f); // Увеличиваем
             }
         }
 

@@ -9,7 +9,7 @@ namespace OpenTKProject
         public string PathToTexture { get { return path; } }
         public int Handle;
 
-        public Texture(string pathTexture)
+        public Texture(string pathTexture, bool generateMipMaps = true,  PixelInternalFormat PixelFormat = PixelInternalFormat.Rgba)
         {
             path = pathTexture;
             Handle = GL.GenTexture();
@@ -19,12 +19,13 @@ namespace OpenTKProject
 
             ImageResult image = ImageResult.FromStream(File.OpenRead(pathTexture), ColorComponents.RedGreenBlueAlpha);
 
-            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, image.Width, image.Height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
+            GL.TexImage2D(TextureTarget.Texture2D, 0, PixelFormat, image.Width, image.Height, 0, OpenTK.Graphics.OpenGL.PixelFormat.Rgba, PixelType.UnsignedByte, image.Data);
 
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.Repeat);
             GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.Repeat);
 
-            GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+            if(generateMipMaps == true)
+                GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
         }
     }
 }

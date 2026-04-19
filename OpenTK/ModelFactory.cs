@@ -26,6 +26,9 @@ namespace OpenTKProject
             if (!string.IsNullOrEmpty(modelTextures.MetallicMapPath))
                 model.SetMetallic(modelTextures.MetallicMapPath);
 
+            if (!string.IsNullOrEmpty(modelTextures.RoughnessMapPath))
+                model.SetRoughness(modelTextures.RoughnessMapPath);
+
             if (string.IsNullOrEmpty(vertShader) || string.IsNullOrEmpty(fragShader))
                 model.SetShader(_defaultVertShader, _defaultFragShader);
             else
@@ -40,5 +43,6 @@ namespace OpenTKProject
         public string TexturePath;
         public string NormalMapPath;
         public string MetallicMapPath;
+        public string RoughnessMapPath;
     }
 }

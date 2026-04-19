@@ -1,4 +1,6 @@
-﻿namespace OpenTKProject
+﻿using OpenTK.Graphics.OpenGL;
+
+namespace OpenTKProject
 {
     public class Model
     {
@@ -6,12 +8,14 @@
         Texture texture;
         Texture normalMap;
         Texture metallic;
+        Texture roughness;
         Shader shader;
 
         public VisualModel VModel { get { return vModel; } }
         public Texture Texture { get { return texture; } }
         public Texture NormalMap { get { return normalMap; } }
         public Texture Metallic { get { return metallic; } }
+        public Texture Roughness { get { return roughness; } }
         public Shader Shader { get { return shader; } }
 
         public Model() { }
@@ -37,7 +41,7 @@
 
         public void SetTexture(string path)
         {
-            texture = new Texture(path);
+            texture = new Texture(path, true, PixelInternalFormat.SrgbAlpha);
         }
 
         public void SetNormalMap(string path)
@@ -47,7 +51,12 @@
 
         public void SetMetallic(string path)
         {
-            metallic = new Texture(path);
+            metallic = new Texture(path, true);
+        }
+
+        public void SetRoughness(string path)
+        {
+            roughness = new Texture(path, true);
         }
 
         public void SetShader(string vertPath, string fragPath)

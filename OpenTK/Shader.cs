@@ -1,6 +1,7 @@
 ﻿using OpenTK.Graphics.OpenGL;
 using OpenTK.Mathematics;
 using System.Reflection;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OpenTKProject
 {
@@ -69,16 +70,19 @@ namespace OpenTKProject
             if (VertSuccess == 0)
             {
                 string infoLog = GL.GetShaderInfoLog(VertexShader);
-                Console.WriteLine(infoLog);
+                File.WriteAllText("VertSuccess.txt", infoLog);
             }
 
             GL.CompileShader(FragmentShader);
 
             GL.GetShader(FragmentShader, ShaderParameter.CompileStatus, out int fragSuccess);
+            string fragLog = GL.GetShaderInfoLog(FragmentShader);
+            File.WriteAllText("fragLog.txt", fragLog);
+
             if (fragSuccess == 0)
             {
                 string infoLog = GL.GetShaderInfoLog(FragmentShader);
-                Console.WriteLine(infoLog);
+                File.WriteAllText("fragLog.txt", infoLog);
             }
         }
 
