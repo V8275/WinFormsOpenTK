@@ -10,8 +10,7 @@
 
   <ItemGroup>
     <None Remove="Shaders\Frag\shader.frag" />
-    <None Remove="Shaders\Vert\
-		  " />
+    <None Remove="Shaders\Vert\&#xD;&#xA;		  " />
   </ItemGroup>
 
   <ItemGroup>
@@ -24,6 +23,8 @@
     <PackageReference Include="JeremyAnsel.Media.WavefrontObj" Version="3.0.58" />
     <PackageReference Include="Assimp" Version="3.0.0" />
     <PackageReference Include="Microsoft.Data.Sqlite.Core" Version="10.0.3" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.15" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.15" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
     <PackageReference Include="OpenTK" Version="4.9.4" />
     <PackageReference Include="OpenTK.GLControl" Version="4.0.2" />

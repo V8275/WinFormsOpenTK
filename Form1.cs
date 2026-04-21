@@ -139,18 +139,7 @@ namespace WinFormsOpenTK
         {
             try
             {
-                dataLoader = new DataLoader();
-                dataLoader.LoadData();
-
-                var data = dataLoader.GetLoadedData();
-                List<string> names = new List<string>();
-
-                for (int i = 0; i < data.Count; i++)
-                {
-                    names.Add(data[i].PresetName.ToString());
-                }
-
-                comboBox1.DataSource = names;
+                UpdateComboBox();
             }
             catch (Exception)
             {
@@ -206,6 +195,8 @@ namespace WinFormsOpenTK
                 listBox1.Items.Add($"{fileName} ({position.X:F1}, {position.Y:F1}, {position.Z:F1})");
 
                 DeleteModelsBtn.Enabled = true;
+
+                listBox1.Enabled = _sceneObjects.Count > 0;
             }
             catch (Exception ex)
             {
@@ -525,12 +516,51 @@ namespace WinFormsOpenTK
             {
                 var moduleLight = obj.Modules.Where(a => a is LightModule).First() as LightModule;
                 if (moduleLight != null)
-                moduleLight.SetIntensity((float)LightIntense.Value);
+                    moduleLight.SetIntensity((float)LightIntense.Value);
                 else
                 {
                     MessageBox.Show("No light");
                 }
             }
+        }
+
+        private void SaveDB_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                dataLoader.SaveChanges();
+                UpdateComboBox();
+                MessageBox.Show("Saved!");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Error: " + ex.Message);
+            }
+        }
+
+        private void DeleteDBData_Click(object sender, EventArgs e)
+        {
+            if (dataLoader.DeleteSelected(dataGridViewModels))
+                MessageBox.Show("Deleted!");
+            else
+                MessageBox.Show("No selected data.");
+        }
+
+        private void UpdateComboBox()
+        {
+            dataLoader = new DataLoader();
+            dataLoader.LoadData();
+            dataLoader.LoadToDataGridView(dataGridViewModels);
+
+            var data = dataLoader.GetLoadedData();
+            List<string> names = new List<string>();
+
+            for (int i = 0; i < data.Count; i++)
+            {
+                names.Add(data[i].PresetName.ToString());
+            }
+
+            comboBox1.DataSource = names;
         }
     }
 }
