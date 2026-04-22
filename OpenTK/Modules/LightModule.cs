@@ -18,9 +18,11 @@ namespace OpenTKProject
             Color = color;
             Intensity = intensity;
 
-            Ambient = new Vector3(0.5f, 0.5f, 0.5f) * intensity;
-            Diffuse = new Vector3(10.0f, 10.0f, 10.0f) * intensity;
-            Specular = new Vector3(5.0f, 5.0f, 5.0f) * intensity;
+            Vector3 colorVec = ColorToVec3();
+
+            Ambient = colorVec * 0.5f * intensity;
+            Diffuse = colorVec * 10.0f * intensity;
+            Specular = colorVec * 5.0f * intensity;
         }
 
         public void SetIntensity(float intensity)
@@ -31,9 +33,11 @@ namespace OpenTKProject
             float baseDiffuse = 10.0f;
             float baseSpecular = 5.0f;
 
-            Ambient = new Vector3(baseAmbient, baseAmbient, baseAmbient) * intensity;
-            Diffuse = new Vector3(baseDiffuse, baseDiffuse, baseDiffuse) * intensity;
-            Specular = new Vector3(baseSpecular, baseSpecular, baseSpecular) * intensity;
+            Vector3 colorVec = ColorToVec3();
+
+            Ambient = new Vector3(baseAmbient, baseAmbient, baseAmbient) * intensity * colorVec;
+            Diffuse = new Vector3(baseDiffuse, baseDiffuse, baseDiffuse) * intensity * colorVec;
+            Specular = new Vector3(baseSpecular, baseSpecular, baseSpecular) * intensity * colorVec;
         }
 
         public Matrix4 GetLightSpaceMatrix(float size = 10.0f, float nearPlane = 1.0f, float farPlane = 50.0f)
@@ -41,12 +45,12 @@ namespace OpenTKProject
             Matrix4 lightProjection = Matrix4.CreateOrthographicOffCenter(
                 -size, size, -size, size, nearPlane, farPlane);
             Matrix4 lightView = Matrix4.LookAt(ParentObject.Position, Vector3.Zero, Vector3.UnitY);
-            return lightProjection * lightView;
+            return lightView * lightProjection;
         }
 
         public Vector3 ColorToVec3()
         {
-            return new Vector3(Color.R / 100f, Color.G / 100f, Color.B / 100f);
+            return new Vector3(Color.R / 255f, Color.G / 255f, Color.B / 255f);
         }
 
         public override void Start()

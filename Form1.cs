@@ -69,11 +69,18 @@ namespace WinFormsOpenTK
             var _lightManager = new LightManager();
 
             var lightObject1 = new SceneObject(null, new Vector3(2, 2, 2));
-            var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.AntiqueWhite);
+            var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.Red);
             lightModule1.Intensity = 1.5f;
             lightObject1.AddModule(lightModule1);
             lightObject.Add(lightObject1);
             _lightManager.AddLight(lightModule1);
+
+            var lightObject2 = new SceneObject(null, new Vector3(-2, 2, -2));
+            var lightModule2 = ModuleInitializer.AddLightModule(lightObject2, Color.AntiqueWhite);
+            lightModule2.Intensity = 1.5f;
+            lightObject2.AddModule(lightModule2);
+            lightObject.Add(lightObject2);
+            _lightManager.AddLight(lightModule2);
 
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
             _physicsWorld = new PhysicsWorld();

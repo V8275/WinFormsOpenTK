@@ -114,9 +114,9 @@ namespace OpenTKProject
             {
                 string prefix = $"lights[{i}].";
                 shader.SetVector3(prefix + "position", lights[i].ParentObject.Position);
-                shader.SetVector3(prefix + "ambient", lights[i].Ambient * 2.0f);  // Увеличиваем
-                shader.SetVector3(prefix + "diffuse", lights[i].Diffuse * 3.0f);  // Увеличиваем
-                shader.SetVector3(prefix + "specular", lights[i].Specular * 2.0f); // Увеличиваем
+                shader.SetVector3(prefix + "ambient", lights[i].Ambient);
+                shader.SetVector3(prefix + "diffuse", lights[i].Diffuse);
+                shader.SetVector3(prefix + "specular", lights[i].Specular);
             }
         }
 
