@@ -132,7 +132,7 @@
             LightIntense.Name = "LightIntense";
             LightIntense.Size = new Size(120, 23);
             LightIntense.TabIndex = 19;
-            LightIntense.Value = new decimal(new int[] { 1, 0, 0, 0 });
+            LightIntense.Value = new decimal(new int[] { 5, 0, 0, 0 });
             LightIntense.ValueChanged += LightIntense_ValueChanged;
             // 
             // panel5

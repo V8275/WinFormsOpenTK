@@ -90,6 +90,20 @@ namespace OpenTKProject
                 GL.BindTexture(TextureTarget.Texture2D, model.Roughness.Handle);
                 model.Shader.SetInt("roughnessMap", 4);
             }
+
+            if (model.Emission != null)
+            {
+                GL.ActiveTexture(TextureUnit.Texture5);
+                GL.BindTexture(TextureTarget.Texture2D, model.Emission.Handle);
+                model.Shader.SetInt("emissionMap", 5);
+            }
+
+            if (model.SkyBoxReflection != null)
+            {
+                GL.ActiveTexture(TextureUnit.Texture6);
+                GL.BindTexture(TextureTarget.Texture2D, model.SkyBoxReflection.Handle);
+                model.Shader.SetInt("skybox", 6);
+            }
         }
 
         private void SetupLighting(Model model, CameraController camera, LightManager lightManager)
@@ -106,6 +120,8 @@ namespace OpenTKProject
             shader.SetFloat("material.ao", 1.0f); 
             shader.SetInt("hasMetallicMap", model.Metallic != null ? 1 : 0);
             shader.SetInt("hasRoughnessMap", model.Roughness != null ? 1 : 0);
+            shader.SetInt("hasEmission", model.Emission != null ? 1 : 0);
+            shader.SetInt("hasSkybox", model.HasSkyBox);
 
             var lights = lightManager.GetLights();
             shader.SetInt("lightsCount", lights.Count);

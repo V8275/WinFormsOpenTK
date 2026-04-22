@@ -22,8 +22,12 @@ uniform sampler2D shadowMap;
 uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
+uniform sampler2D emissionMap;
+uniform sampler2D skybox;
 uniform int lightsCount;
 uniform int hasNormalMap;
+uniform int hasEmission;
+uniform int hasSkybox;
 
 in vec2 texCoord;
 in vec3 Tangent;
@@ -104,9 +108,21 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal, vec3 lightDir)
     return shadow;
 }
 
+vec3 FresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness)
+{
+    cosTheta = clamp(cosTheta, 0.0, 1.0);
+    vec3 F90 = max(vec3(1.0 - roughness), F0);
+    return F0 + (F90 - F0) * pow(1.0 - cosTheta, 5.0);
+}
+
 void main()
 {
     vec4 textureColor = texture(texture0, texCoord);
+    vec3 em = vec3(0.0);
+    if (hasEmission == 1)
+    {
+        em = texture(emissionMap, texCoord).rgb;
+    }
     vec3 albedo = textureColor.rgb;
 
     vec3 norm;
@@ -200,7 +216,31 @@ void main()
         Lo = (kD * albedo / PI + specular) * radiance * NdotL;
     }
     
-    vec3 color = ambient + Lo;
+    if (hasSkybox == 1)
+    {
+        vec3 R = reflect(-viewDir, norm);
+        
+        vec2 uv;
+        uv.x = atan(R.z, R.x) / (2.0 * PI) + 0.5;
+        uv.y = asin(R.y) / PI + 0.5;
+        
+        vec3 skyColor = texture(skybox, uv).rgb;
+        vec3 F = FresnelSchlickRoughness(max(dot(norm, viewDir), 0.0), F0, roughness);
+
+        float reflectionStrength = 0.2;
+        Lo += skyColor * F * reflectionStrength;
+        ambient = vec3(0.01) * albedo;
+    }
+
+    vec3 color = vec3(0.0);
+    if(hasEmission == 1)
+    {
+        color = ambient + Lo + em;
+    }
+    else
+    {
+        color =  ambient + Lo;
+    }
 
     color = color / (color + vec3(1.0));
     

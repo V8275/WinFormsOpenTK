@@ -16,13 +16,14 @@ namespace WinFormsOpenTK
         private System.Windows.Forms.Timer _renderTimer;
         private System.Windows.Forms.Timer _inputTimer;
 
+        private string skyboxTexturePath = "Models/Textures/Sky/SkyClouds.jpg";
         private string vertShaderPath = "WinFormsOpenTK.Shaders.Vert.shader.vert";
         private string fragShaderPath = "WinFormsOpenTK.Shaders.Frag.shader.frag";
 
         private CameraController _cameraController;
         private Renderer _renderer;
         private SceneInitializer _sceneInitializer;
-        private List<SceneObject> _sceneObjects;
+        private List<SceneObject> _sceneObjects = new List<SceneObject>();
         private PhysicsWorld _physicsWorld;
         private float _lastX, _lastY;
         private bool _firstMove = true;
@@ -31,6 +32,7 @@ namespace WinFormsOpenTK
         private float _fps;
         private DateTime _lastFPSTime = DateTime.Now;
         private DataLoader dataLoader;
+        private static int ShadowMapQuality = 4096;
 
         private string _selectedModelPath = "";
         private ModelTextures _selectedTexturePath;
@@ -69,28 +71,21 @@ namespace WinFormsOpenTK
             var _lightManager = new LightManager();
 
             var lightObject1 = new SceneObject(null, new Vector3(2, 2, 2));
-            var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.Red);
-            lightModule1.Intensity = 1.5f;
+            var lightModule1 = ModuleInitializer.AddLightModule(lightObject1, Color.AntiqueWhite);
+            lightModule1.SetIntensity(5f);
             lightObject1.AddModule(lightModule1);
             lightObject.Add(lightObject1);
             _lightManager.AddLight(lightModule1);
 
-            var lightObject2 = new SceneObject(null, new Vector3(-2, 2, -2));
-            var lightModule2 = ModuleInitializer.AddLightModule(lightObject2, Color.AntiqueWhite);
-            lightModule2.Intensity = 1.5f;
-            lightObject2.AddModule(lightModule2);
-            lightObject.Add(lightObject2);
-            _lightManager.AddLight(lightModule2);
-
             _cameraController = new CameraController(5.0f, new Vector3(0.0f, 2.0f, 5.0f));
+
             _physicsWorld = new PhysicsWorld();
 
-            var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath);
+            var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath, skyboxTexturePath);
             _sceneInitializer = new SceneInitializer(modelFactory);
 
-            _renderer = new Renderer(_cameraController, _lightManager);
+            _renderer = new Renderer(_cameraController, _lightManager, ShadowMapQuality);
 
-            _sceneObjects = new List<SceneObject>();
         }
 
         private void SetupTimers()
@@ -152,6 +147,8 @@ namespace WinFormsOpenTK
             {
                 throw;
             }
+
+
         }
 
         #endregion
@@ -302,6 +299,18 @@ namespace WinFormsOpenTK
             _physicsWorld.Initialize();
 
             Console.WriteLine("Physics initialized");
+
+
+            Model Sky = new Model(skybox: false);
+            Sky.SetVModel("Models/Sky.obj", ModelFormat.Obj);
+            Sky.SetTexture(skyboxTexturePath);
+            Sky.SetEmission(skyboxTexturePath);
+            Sky.SetShader(vertShaderPath, fragShaderPath);
+            Sky.SetupEmission();
+            var skyBox = new SceneObject(Sky, _cameraController.Position, new Vector3(50, 50, 50));
+            var Skymodule = new SkyboxModule(_cameraController, skyBox);
+            skyBox.AddModule(Skymodule);
+            _sceneObjects.Add(skyBox);
         }
 
         private void GlControl_Resize(object sender, EventArgs e)

@@ -4,11 +4,19 @@ namespace OpenTKProject
     {
         private readonly string _defaultVertShader;
         private readonly string _defaultFragShader;
+        private readonly string _skyTexturePath;
 
         public ModelFactory(string defaultVertShader, string defaultFragShader)
         {
             _defaultVertShader = defaultVertShader;
             _defaultFragShader = defaultFragShader;
+        }
+
+        public ModelFactory(string defaultVertShader, string defaultFragShader, string skyTexturePath)
+        {
+            _defaultVertShader = defaultVertShader;
+            _defaultFragShader = defaultFragShader;
+            _skyTexturePath = skyTexturePath;
         }
 
         public Model CreateModel(string modelPath, ModelTextures modelTextures, ModelFormat modelFormat = ModelFormat.Obj, 
@@ -28,6 +36,9 @@ namespace OpenTKProject
 
             if (!string.IsNullOrEmpty(modelTextures.RoughnessMapPath))
                 model.SetRoughness(modelTextures.RoughnessMapPath);
+
+            if (!string.IsNullOrEmpty(_skyTexturePath))
+                model.SetSkyTexture(_skyTexturePath);
 
             if (string.IsNullOrEmpty(vertShader) || string.IsNullOrEmpty(fragShader))
                 model.SetShader(_defaultVertShader, _defaultFragShader);
