@@ -101,7 +101,7 @@ namespace OpenTKProject
             if (model.SkyBoxReflection != null)
             {
                 GL.ActiveTexture(TextureUnit.Texture6);
-                GL.BindTexture(TextureTarget.Texture2D, model.SkyBoxReflection.Handle);
+                GL.BindTexture(TextureTarget.TextureCubeMap, model.SkyBoxReflection.Handle);
                 model.Shader.SetInt("skybox", 6);
             }
         }

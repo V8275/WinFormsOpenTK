@@ -19,6 +19,7 @@ namespace WinFormsOpenTK
         private string skyboxTexturePath = "Models/Textures/Sky/SkyClouds.jpg";
         private string vertShaderPath = "WinFormsOpenTK.Shaders.Vert.shader.vert";
         private string fragShaderPath = "WinFormsOpenTK.Shaders.Frag.shader.frag";
+        private string[] skyboxTexturePaths = new string[6];
 
         private CameraController _cameraController;
         private Renderer _renderer;
@@ -68,6 +69,9 @@ namespace WinFormsOpenTK
 
         private void InitializeScene()
         {
+            var SkyboxTextures = new SkyboxPaths();
+            skyboxTexturePaths = SkyboxTextures.GetPaths();
+
             var _lightManager = new LightManager();
 
             var lightObject1 = new SceneObject(null, new Vector3(2, 2, 2));
@@ -81,11 +85,10 @@ namespace WinFormsOpenTK
 
             _physicsWorld = new PhysicsWorld();
 
-            var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath, skyboxTexturePath);
+            var modelFactory = new ModelFactory(vertShaderPath, fragShaderPath, skyboxTexturePaths);
             _sceneInitializer = new SceneInitializer(modelFactory);
 
             _renderer = new Renderer(_cameraController, _lightManager, ShadowMapQuality);
-
         }
 
         private void SetupTimers()

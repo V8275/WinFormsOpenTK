@@ -23,7 +23,7 @@ uniform sampler2D normalMap;
 uniform sampler2D metallicMap;
 uniform sampler2D roughnessMap;
 uniform sampler2D emissionMap;
-uniform sampler2D skybox;
+uniform samplerCube skybox;
 uniform int lightsCount;
 uniform int hasNormalMap;
 uniform int hasEmission;
@@ -130,12 +130,13 @@ void main()
     {
         vec3 N = normalize(Normal);
         vec3 T = normalize(Tangent);
-        T = normalize(T - dot(T, N) * N);
-        vec3 B = cross(N, T);
+        vec3 B = normalize(Bitangent);
+
+        mat3 TBN = mat3(T, B, N);
 
         vec3 normalFromMap = texture(normalMap, texCoord).rgb;
         normalFromMap = normalize(normalFromMap * 2.0 - 1.0);
-        mat3 TBN = mat3(T, B, N);
+      
         norm = normalize(TBN * normalFromMap);
     }
     else
@@ -218,16 +219,13 @@ void main()
     
     if (hasSkybox == 1)
     {
-        vec3 R = reflect(-viewDir, norm);
-        
-        vec2 uv;
-        uv.x = atan(R.z, R.x) / (2.0 * PI) + 0.5;
-        uv.y = asin(R.y) / PI + 0.5;
-        
-        vec3 skyColor = texture(skybox, uv).rgb;
+        vec3 I = normalize(FragPos - viewPos);
+        vec3 R = reflect(I, norm);
+        vec3 skyColor = texture(skybox, R).rgb;
+    
         vec3 F = FresnelSchlickRoughness(max(dot(norm, viewDir), 0.0), F0, roughness);
 
-        float reflectionStrength = 0.2;
+        float reflectionStrength = 0.3;
         Lo += skyColor * F * reflectionStrength;
         ambient = vec3(0.01) * albedo;
     }
@@ -245,6 +243,6 @@ void main()
     color = color / (color + vec3(1.0));
     
     color = pow(color, vec3(1.0/2.2));
-    
+
     outputColor = vec4(color, textureColor.a);
 }

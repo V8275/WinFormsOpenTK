@@ -1,5 +1,4 @@
-﻿using System.Security.Policy;
-using OpenTK.Graphics.OpenGL;
+﻿using OpenTK.Graphics.OpenGL;
 
 namespace OpenTKProject
 {
@@ -11,7 +10,7 @@ namespace OpenTKProject
         Texture metallic;
         Texture roughness;
         Texture emission;
-        Texture skyBoxReflection;
+        SkyBoxTexture skyBoxReflection;
         Shader shader;
         int hasSkyBox;
 
@@ -21,7 +20,7 @@ namespace OpenTKProject
         public Texture Metallic { get { return metallic; } }
         public Texture Roughness { get { return roughness; } }
         public Texture Emission { get { return emission; } }
-        public Texture SkyBoxReflection { get { return skyBoxReflection; } }
+        public SkyBoxTexture SkyBoxReflection { get { return skyBoxReflection; } }
         public Shader Shader { get { return shader; } }
         public int HasSkyBox { get { return hasSkyBox; } }
 
@@ -66,9 +65,9 @@ namespace OpenTKProject
             }
         }
 
-        public void SetSkyTexture(string path)
+        public void SetSkyTexture(string[] paths)
         {
-            skyBoxReflection = new Texture(path, true, PixelInternalFormat.Rgb);
+            skyBoxReflection = new SkyBoxTexture(paths, true);
 
             SetSkybox(true);
         }

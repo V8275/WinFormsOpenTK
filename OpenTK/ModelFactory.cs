@@ -4,7 +4,7 @@ namespace OpenTKProject
     {
         private readonly string _defaultVertShader;
         private readonly string _defaultFragShader;
-        private readonly string _skyTexturePath;
+        private readonly string[] _skyTexturePaths;
 
         public ModelFactory(string defaultVertShader, string defaultFragShader)
         {
@@ -12,11 +12,11 @@ namespace OpenTKProject
             _defaultFragShader = defaultFragShader;
         }
 
-        public ModelFactory(string defaultVertShader, string defaultFragShader, string skyTexturePath)
+        public ModelFactory(string defaultVertShader, string defaultFragShader, string[] skyTexturePaths)
         {
             _defaultVertShader = defaultVertShader;
             _defaultFragShader = defaultFragShader;
-            _skyTexturePath = skyTexturePath;
+            _skyTexturePaths = skyTexturePaths;
         }
 
         public Model CreateModel(string modelPath, ModelTextures modelTextures, ModelFormat modelFormat = ModelFormat.Obj, 
@@ -37,8 +37,8 @@ namespace OpenTKProject
             if (!string.IsNullOrEmpty(modelTextures.RoughnessMapPath))
                 model.SetRoughness(modelTextures.RoughnessMapPath);
 
-            if (!string.IsNullOrEmpty(_skyTexturePath))
-                model.SetSkyTexture(_skyTexturePath);
+            if (IsSkyTexturesFull(_skyTexturePaths))
+                model.SetSkyTexture(_skyTexturePaths);
 
             if (string.IsNullOrEmpty(vertShader) || string.IsNullOrEmpty(fragShader))
                 model.SetShader(_defaultVertShader, _defaultFragShader);
@@ -46,6 +46,18 @@ namespace OpenTKProject
                 model.SetShader(vertShader, fragShader);
 
             return model;
+        }
+
+        private bool IsSkyTexturesFull(string[] textures)
+        {
+            for (int i = 0; i < textures.Length; i++)
+            {
+                if (string.IsNullOrEmpty(textures[i]))
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 
